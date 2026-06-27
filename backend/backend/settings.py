@@ -1,6 +1,8 @@
+# backend/settings.py - Add these imports and settings
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -9,6 +11,63 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-change-me")
 DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
+
+# Add JWT settings
+JWT_SECRET = SECRET_KEY
+JWT_EXPIRATION_DAYS = 7
+
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'x-requested-with',
+    'x-api-key',
+]
+
+# Session settings
+SESSION_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False
+
+# CSRF settings
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = False
+
+# CSRF Trusted Origins - Add all your frontend URLs
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3003",
+    "http://127.0.0.1:3003",
+    "http://localhost:3006",
+    "http://127.0.0.1:3006",
+    "http://localhost:3010",
+    "http://127.0.0.1:3010",
+    "http://10.216.112.80:3003",
+    "http://10.216.112.80:3010",
+    "http://10.216.112.80:3006",
+    "http://192.168.1.100:3003",
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -22,6 +81,7 @@ INSTALLED_APPS = [
     "store",
 ]
 
+# Add JWTAuthenticationMiddleware to MIDDLEWARE
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -31,6 +91,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "store.views.JWTAuthenticationMiddleware",  # Add custom JWT middleware
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -66,6 +127,17 @@ DATABASES = {
         },
     }
 }
+
+# REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,  # Change from 20 to 100 or more
+}
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
