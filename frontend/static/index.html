@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkyMart | Premium Curated Storefront</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #1e2025 0%, #0f1013 50%, #17181c 100%);
+      color: #f5f5f4;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      position: relative;
+    }
+
+    /* Lighting backdrops */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .orb-top-left {
+      width: 500px;
+      height: 500px;
+      background: rgba(245, 158, 11, 0.05); /* amber soft glow */
+      filter: blur(140px);
+      top: -150px;
+      left: -150px;
+    }
+
+    .orb-bottom-right {
+      width: 450px;
+      height: 450px;
+      background: rgba(120, 113, 108, 0.05); /* stone soft glow */
+      filter: blur(120px);
+      bottom: -150px;
+      right: -150px;
+    }
+
+    /* Header */
+    header {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .logo {
+      font-family: 'Cinzel', serif;
+      font-weight: 600;
+      font-size: 20px;
+      letter-spacing: 6px;
+      color: #e7e5e4;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .logo span {
+      background: linear-gradient(to right, #f59e0b, #fde047);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo:hover {
+      color: #fbbf24;
+    }
+
+    .skip-btn {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: #a8a29e;
+      background: rgba(28, 25, 23, 0.4);
+      padding: 12px 24px;
+      border-radius: 50px;
+      border: 1px solid #2e2a24;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.03);
+      transition: all 0.3s ease;
+    }
+
+    .skip-btn:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      background: rgba(28, 25, 23, 0.8);
+    }
+
+    /* Main Container */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: auto;
+      padding: 60px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      z-index: 10;
+    }
+
+    /* Left panel */
+    .left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .exclusive-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 50px;
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.15);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2.2px;
+      text-transform: uppercase;
+      color: #fbbf24;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .star-icon {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #fbbf24;
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      animation: pulse 1.5s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1.1); }
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 64px;
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: 4px;
+      color: #f5f5f4;
+      margin-bottom: 8px;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, #fde047, #f59e0b, #fde047);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 400;
+    }
+
+    .brand-genre {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      color: #78716c;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #a8a29e;
+      max-width: 500px;
+      margin-bottom: 40px;
+      font-weight: 400;
+    }
+
+    /* Buttons */
+    .buttons {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .btn {
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .primary {
+      background: #f5f5f4;
+      color: #0c0a09;
+      border: 1px solid #f5f5f4;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .primary:hover {
+      background: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(255, 255, 255, 0.1);
+    }
+
+    .secondary {
+      background: rgba(28, 25, 23, 0.5);
+      backdrop-filter: blur(10px);
+      color: #d6d3d1;
+      border: 1px solid #2e2a24;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .secondary:hover {
+      border-color: #44403c;
+      color: #f5f5f4;
+      background: rgba(28, 25, 23, 0.8);
+      transform: translateY(-2px);
+    }
+
+    /* Stats Section */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      width: 100%;
+      max-width: 500px;
+      margin-top: 60px;
+      border-top: 1px solid #1c1917;
+      padding-top: 32px;
+    }
+
+    .stat h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: rgba(254, 243, 199, 0.9);
+      margin-bottom: 4px;
+    }
+
+    .stat p {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      color: #57524d;
+      text-transform: uppercase;
+    }
+
+    /* Right interactive spatial presentation */
+    .right {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      min-height: 500px;
+    }
+
+    .ambient-gold-glow {
+      position: absolute;
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.035) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .orbital-container {
+      position: relative;
+      width: 420px;
+      height: 420px;
+      border: 1px solid rgba(120, 113, 108, 0.15);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .orbital-ring {
+      position: absolute;
+      width: calc(100% - 16px);
+      height: calc(100% - 16px);
+      border: 1px dashed rgba(120, 113, 108, 0.1);
+      border-radius: 50%;
+      animation: spinSlow 45s linear infinite;
+    }
+
+    .central-logo {
+      width: 120px;
+      height: 120px;
+      background: #141211;
+      border: 1px solid rgba(87, 82, 77, 0.4);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.05);
+      z-index: 2;
+    }
+
+    .central-logo svg {
+      width: 48px;
+      height: 48px;
+      fill: #a8a29e;
+      opacity: 0.5;
+      filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.12));
+    }
+
+    @keyframes spinSlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Floating Couture Cards */
+    .product-card {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      background: rgba(21, 19, 18, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid #23201e;
+      border-radius: 14px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      z-index: 5;
+      transition: border-color 0.3s, transform 0.3s;
+      text-decoration: none;
+    }
+
+    .product-card:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .item-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #2e2a27, #1c1917);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);
+      transition: transform 0.3s;
+    }
+
+    .item-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: rgba(245, 158, 11, 0.6);
+      transition: stroke 0.3s;
+    }
+
+    .product-card:hover .item-icon svg {
+      stroke: rgba(251, 191, 36, 1);
+    }
+
+    .product-card:hover .item-icon {
+      transform: scale(1.1);
+    }
+
+    .item-details p {
+      font-size: 8px;
+      font-family: monospace;
+      color: #78716c;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .item-details h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e7e5e4;
+      letter-spacing: 0.5px;
+      transition: color 0.3s;
+    }
+
+    .product-card:hover .item-details h4 {
+      color: #fbbf24;
+    }
+
+    /* Animation classes */
+    .anim-float {
+      animation: floatEffect 6s ease-in-out infinite;
+    }
+
+    .anim-float-delayed {
+      animation: floatEffectDelayed 6.5s ease-in-out infinite;
+    }
+
+    @keyframes floatEffect {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(1deg); }
+    }
+
+    @keyframes floatEffectDelayed {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(-1.5deg); }
+    }
+
+    /* Specific node placements */
+    .card-p1 {
+      top: 15px;
+      left: 15px;
+    }
+
+    .card-p2 {
+      top: 110px;
+      right: 5px;
+    }
+
+    .card-p3 {
+      bottom: 100px;
+      left: -10px;
+    }
+
+    .card-p4 {
+      bottom: 25px;
+      right: 35px;
+    }
+
+    /* Footer styles */
+    footer {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 40px 24px;
+      border-top: 1px solid #1c1917;
+      text-align: center;
+      padding-top: 24px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #57524d;
+      z-index: 10;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      body {
+        overflow-y: auto;
+      }
+
+      .container {
+        grid-template-columns: 1fr;
+        gap: 60px;
+        text-align: center;
+        padding-top: 40px;
+      }
+
+      .left {
+        align-items: center;
+      }
+
+      .exclusive-badge {
+        justify-content: center;
+      }
+
+      h1 {
+        font-size: 46px;
+      }
+
+      .subtitle {
+        margin: 0 auto 40px auto;
+      }
+
+      .buttons {
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      .stats {
+        margin: 40px auto 0 auto;
+      }
+
+      .right {
+        min-height: 450px;
+      }
+
+      .orbital-container {
+        width: 320px;
+        height: 320px;
+      }
+
+      .card-p1 { top: 0; left: 0; }
+      .card-p2 { top: 90px; right: -10px; }
+      .card-p3 { bottom: 90px; left: -10px; }
+      .card-p4 { bottom: 0px; right: 0px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-orb orb-top-left"></div>
+  <div class="glow-orb orb-bottom-right"></div>
+
+  <header>
+    <a href="#" class="logo">SKY<span>MART</span></a>
+    <a href="product.html" class="skip-btn">Skip to Store ⚡</a>
+  </header>
+
+  <div class="container">
+    <!-- LEFT -->
+    <div class="left">
+      <div class="exclusive-badge">
+        <span class="star-icon"></span>
+        The Art of Selection
+      </div>
+
+      <h1>SKY<span>MART</span></h1>
+      <div class="brand-genre">Haute Couture & Living</div>
+
+      <p class="subtitle">
+        An ultra-luxury curated destination for avant-garde fashion, premium acoustic technology, and bespoke furniture components. Handcrafted pricing design and pristine tactile responsiveness.
+      </p>
+
+      <div class="buttons">
+        <a href="login.html" class="btn primary">Enter Atelier</a>
+        <a href="register.html" class="btn secondary">Create Account</a>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <h3>1M+</h3>
+          <p>Curated Assets</p>
+        </div>
+
+        <div class="stat">
+          <h3>500K+</h3>
+          <p>Global Clients</p>
+        </div>
+
+        <div class="stat">
+          <h3>24/7</h3>
+          <p>Concierge Desk</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+      <div class="ambient-gold-glow"></div>
+      
+      <div class="orbital-container">
+        <!-- Rotating orbital guides -->
+        <div class="orbital-ring"></div>
+        
+        <!-- Central luxury cart icon -->
+        <div class="central-logo">
+          <svg viewBox="0 0 24 24">
+            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+          </svg>
+        </div>
+
+        <!-- Floating Glassmorphism Cards -->
+        <a href="product.html?category=Apparel" class="product-card card-p1 anim-float">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z"/></svg>
+          </div>
+          <div class="item-details">
+            <p>01 / COUTURE</p>
+            <h4>Haute Fit</h4>
+          </div>
+        </a>
+
+        <a href="product.html?category=Electronics" class="product-card card-p2 anim-float-delayed">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div class="item-details">
+            <p>02 / ELECTRONICS</p>
+            <h4>Matrix Pro</h4>
+          </div>
+        </a>
+
+        <a href="product.html?category=Accessories" class="product-card card-p3 anim-float-delayed">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>
+          </div>
+          <div class="item-details">
+            <p>03 / COUTURE</p>
+            <h4>Aero Walk</h4>
+          </div>
+        </a>
+
+        <a href="product.html?category=Electronics" class="product-card card-p4 anim-float">
+          <div class="item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+          </div>
+          <div class="item-details">
+            <p>04 / AUDIO</p>
+            <h4>Apex Wave</h4>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 SkyMart. Manufactured strictly to premium engineering specifications.
+  </footer>
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkyMart - Create Account</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(
+          135deg,
+          #eff6ff 0%,
+          #ffffff 50%,
+          #fef3c7 100%
+        );
+        overflow: hidden;
+        padding: 20px;
+      }
+
+      .circle {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.15;
+        z-index: 0;
+      }
+
+      .c1 {
+        width: 350px;
+        height: 350px;
+        background: #10b981;
+        top: -100px;
+        left: -100px;
+      }
+      .c2 {
+        width: 250px;
+        height: 250px;
+        background: #f59e0b;
+        bottom: -80px;
+        right: -80px;
+      }
+      .c3 {
+        width: 180px;
+        height: 180px;
+        background: #3b82f6;
+        top: 40%;
+        right: 8%;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 60px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero {
+        flex: 1;
+        text-align: center;
+      }
+
+      .hero-main {
+        width: 280px;
+        animation: float 4s ease-in-out infinite;
+      }
+
+      .hero h1 {
+        margin-top: 20px;
+        font-size: 60px;
+        color: #10b981;
+      }
+
+      .hero p {
+        margin-top: 12px;
+        color: #555;
+        font-size: 18px;
+        line-height: 1.6;
+      }
+
+      .product-icons {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .product-icons img {
+        width: 70px;
+        height: 70px;
+        transition: 0.3s;
+      }
+
+      .product-icons img:hover {
+        transform: translateY(-10px) scale(1.1);
+      }
+
+      .card {
+        width: 420px;
+        background: white;
+        border-radius: 20px;
+        padding: 35px;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+      }
+
+      .card h2 {
+        color: #111827;
+        margin-bottom: 25px;
+        font-size: 30px;
+      }
+
+      .field {
+        margin-bottom: 18px;
+      }
+
+      .field label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .field input {
+        width: 100%;
+        padding: 13px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        outline: none;
+        transition: 0.3s;
+      }
+
+      .field input:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+      }
+
+      .btn {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        background: #10b981;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: 0.3s;
+      }
+
+      .btn:hover {
+        background: #059669;
+        transform: translateY(-2px);
+      }
+
+      .footer {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-15px);
+        }
+      }
+
+      .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 10px;
+        color: white;
+        font-size: 14px;
+        font-weight: 500;
+        opacity: 0;
+        transform: translateX(100px);
+        transition: 0.4s ease;
+        z-index: 9999;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .toast.success {
+        background: #10b981;
+      }
+      .toast.error {
+        background: #ef4444;
+      }
+
+      @media (max-width: 900px) {
+        .container {
+          flex-direction: column;
+        }
+        .hero h1 {
+          font-size: 45px;
+        }
+        .hero-main {
+          width: 200px;
+        }
+        .card {
+          width: 100%;
+          max-width: 420px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+    <div class="circle c3"></div>
+
+    <div id="toast" class="toast"></div>
+
+    <div class="container">
+      <!-- LEFT SIDE -->
+      <div class="hero">
+        <img
+          class="hero-main"
+          src="https://cdn-icons-png.flaticon.com/512/3144/3144456.png"
+          alt="Shopping Cart"
+        />
+
+        <h1>SkyMart</h1>
+
+        <p>
+          Join SkyMart and unlock incredible discounts.<br />
+          Start exploring millions of curated products globally.
+        </p>
+
+        <div class="product-icons">
+          <img src="https://cdn-icons-png.flaticon.com/512/892/892458.png" />
+          <img src="https://cdn-icons-png.flaticon.com/512/2589/2589874.png" />
+          <img src="https://cdn-icons-png.flaticon.com/512/3081/3081986.png" />
+          <img src="https://cdn-icons-png.flaticon.com/512/869/869636.png" />
+          <img src="https://cdn-icons-png.flaticon.com/512/1046/1046857.png" />
+        </div>
+      </div>
+
+      <!-- REGISTER CARD -->
+      <div class="card">
+        <h2>Create Account</h2>
+
+        <div class="field">
+          <label>Full Name</label>
+          <input
+            type="text"
+            id="regName"
+            placeholder="Enter your name"
+          />
+        </div>
+
+        <div class="field">
+          <label>Email Address</label>
+          <input
+            type="email"
+            id="regEmail"
+            placeholder="example@gmail.com"
+          />
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <input
+            type="password"
+            id="regPass"
+            placeholder="Minimum 6 characters"
+          />
+        </div>
+
+        <button class="btn" onclick="registerUser()">Create Account</button>
+
+        <div class="footer">
+          Already have an account? <a href="login.html" style="color:#10b981; text-decoration:none; font-weight:600;">Sign In</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showToast(message, type) {
+        const toast = document.getElementById("toast");
+
+        toast.className = "toast " + type;
+        toast.innerText = message;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+
+      function registerUser() {
+        const name = document.getElementById("regName").value;
+        const email = document.getElementById("regEmail").value;
+        const pass = document.getElementById("regPass").value;
+
+        if (name === "" || email === "" || pass === "") {
+          showToast("Please fill all required layout fields", "error");
+          return;
+        }
+
+        if (pass.length < 6) {
+          showToast("Password code must be at least 6 characters", "error");
+          return;
+        }
+
+        showToast("Registration successful! Proceeding to Sign In... 🎉", "success");
+
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1500);
+      }
+    </script>
+  </body>
+</html>

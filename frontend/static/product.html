@@ -1,0 +1,1850 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkyMart Haute - Luxury Curated Storefront</title>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+      /* LUXURY EDITORIAL DESIGN SYSTEM */
+      @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+
+      body {
+        background-color: #faf9f5; /* Warm premium alabaster canvas */
+        color: #1c1917; /* Rich volcanic charcoal typography */
+        overflow-x: hidden;
+        letter-spacing: -0.2px;
+      }
+
+      h1,
+      h2,
+      .logo,
+      .premium-heading {
+        font-family:
+          "Cinzel", serif; /* Sophisticated serif variant for luxury anchoring */
+        letter-spacing: 1px;
+      }
+
+      /* HIGH-END MINIMALIST INTRO SCREEN */
+      #appSplashScreenScope {
+        position: fixed;
+        inset: 0;
+        background: #faf9f5;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition:
+          opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+          visibility 0.5s;
+      }
+
+      .splash-logo-text {
+        font-size: 42px;
+        font-weight: 700;
+        color: #1c1917;
+        margin-bottom: 8px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+      }
+
+      .splash-subtitle {
+        color: #a8a29e;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+      }
+
+      .splash-bar {
+        width: 60px;
+        height: 1px;
+        background: #1c1917;
+        margin-top: 30px;
+        transform: scaleX(0);
+        animation: extendBar 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      @keyframes extendBar {
+        to {
+          transform: scaleX(1);
+        }
+      }
+
+      /* STRUCTURAL ARCHITECTURAL NAVIGATION */
+      .navbar {
+        background: rgba(250, 249, 245, 0.85);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid #e7e5e4;
+        padding: 18px 30px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1c1917;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        flex: 1;
+      }
+
+      .nav-links span {
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+      .nav-links span:hover {
+        color: #1c1917;
+      }
+
+      .search-box {
+        min-width: 280px;
+        max-width: 350px;
+        width: 100%;
+        position: relative;
+        flex: 0 1 320px;
+      }
+
+      .search-box input {
+        width: 100%;
+        padding: 10px 45px 10px 15px;
+      }
+
+      .search-box input:focus {
+        border-color: #1c1917;
+      }
+
+      .search-box button {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 45px;
+      }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .counter-badge-container {
+        background: transparent;
+        color: #1c1917;
+        padding: 6px 12px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .counter-badge-container .lucide {
+        width: 16px;
+        height: 16px;
+        color: #1c1917;
+      }
+
+      .auth-action-trigger {
+        background: #1c1917;
+        color: #faf9f5;
+        border: none;
+        padding: 10px 24px;
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+      .auth-action-trigger:hover {
+        opacity: 0.9;
+      }
+
+      /* AUTO-SCROLLING PREMIUM SALES FLASHBAR */
+      .sales-ticker-banner {
+        background: #1c1917;
+        color: #faf9f5;
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 12px 0;
+        display: flex;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .sales-ticker-track {
+        display: inline-flex;
+        animation: sideToSideScroll 25s linear infinite;
+      }
+
+      .sales-ticker-item {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        padding: 0 40px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .sales-ticker-item span.accent-gold {
+        color: #d97706;
+      }
+
+      @keyframes sideToSideScroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .nav-links {
+          justify-content: center;
+          gap: 12px;
+        }
+
+        .search-box {
+          max-width: 100%;
+        }
+
+        .nav-actions {
+          justify-content: center;
+        }
+      }
+
+      /* EDITORIAL HERO SECTION */
+      .hero-presentation-deck {
+        text-align: center;
+        padding: 80px 20px 40px 20px;
+      }
+
+      .hero-presentation-deck h1 {
+        font-size: 46px;
+        font-weight: 400;
+        color: #1c1917;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .hero-presentation-deck p {
+        color: #78716c;
+        font-size: 15px;
+        line-height: 1.8;
+        margin-bottom: 40px;
+        max-width: 580px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-presentation-deck button {
+        padding: 14px 36px;
+        border: 1px solid #1c1917;
+        background: transparent;
+        color: #1c1917;
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .hero-presentation-deck button:hover {
+        background: #1c1917;
+        color: #faf9f5;
+      }
+
+      /* MARQUEE RUNWAY */
+      .infinite-horizontal-scroller-frame {
+        overflow: hidden;
+        width: 100%;
+        padding: 20px 0 50px 0;
+      }
+
+      .scroller-inner-dock {
+        display: flex;
+        width: max-content;
+        gap: 40px;
+        animation: smoothMarqueeLoop 40s linear infinite;
+      }
+
+      @keyframes smoothMarqueeLoop {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      .category-pill-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+      .category-pill-card span {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #1c1917;
+      }
+      .category-pill-card:hover {
+        opacity: 0.6;
+      }
+
+      /* GALLERY-STYLE PRODUCT CARDS */
+      .main-app-container {
+        max-width: 1340px;
+        margin: 0 auto;
+        padding: 20px 50px 100px 50px;
+      }
+
+      .section-title-wrapper {
+        margin-bottom: 40px;
+        border-bottom: 1px solid #e7e5e4;
+        padding-bottom: 16px;
+      }
+
+      .main-app-container h2 {
+        font-size: 22px;
+        font-weight: 400;
+        color: #1c1917;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .products-grid-deck {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 40px;
+      }
+
+      .product-item-card {
+        background: #ffffff;
+        border: 1px solid #e7e5e4;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .product-item-card:hover {
+        border-color: #1c1917;
+        box-shadow: 0 15px 35px rgba(28, 25, 23, 0.04);
+      }
+
+      .card-media-scope {
+        width: 100%;
+        height: 310px;
+        position: relative;
+        background: #f5f5f4;
+        padding: 20px;
+        overflow: hidden;
+      }
+
+      .product-item-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .product-item-card:hover img {
+        transform: scale(1.04);
+      }
+
+      .heart-favorite-trigger {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 10;
+        width: 32px;
+        height: 32px;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .heart-favorite-trigger.active .lucide {
+        color: #d97706;
+        fill: #d97706;
+      }
+
+      .card-text-scope {
+        padding: 24px 20px 10px 20px;
+      }
+      .card-text-scope .brand-tag {
+        font-size: 10px;
+        color: #78716c;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+
+      .card-text-scope h3 {
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 14px;
+        height: 40px;
+        overflow: hidden;
+        color: #1c1917;
+        line-height: 1.5;
+      }
+
+      .card-text-scope .price-tag {
+        color: #1c1917;
+        font-weight: 600;
+        font-size: 16px;
+        letter-spacing: -0.5px;
+      }
+
+      .card-button-actions {
+        display: flex;
+        gap: 1px;
+        background: #e7e5e4;
+        padding-top: 1px;
+        margin-top: auto;
+      }
+      .card-button-actions button {
+        flex: 1;
+        padding: 14px;
+        border: none;
+        background: #ffffff;
+        color: #1c1917;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+      .card-button-actions button:hover {
+        background: #1c1917;
+        color: #faf9f5;
+      }
+
+      /* EDITORIAL ROW BANNER */
+      .curated-slideshow-view {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        overflow: hidden;
+        margin: 80px 0;
+        border: 1px solid #e7e5e4;
+      }
+
+      .promoSlide {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+      .promoSlide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: grayscale(15%);
+      }
+
+      .promo-slide-caption {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          rgba(250, 249, 245, 0.98) 35%,
+          rgba(250, 249, 245, 0.8) 60%,
+          transparent
+        );
+        color: #1c1917;
+        padding: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      .promo-slide-caption h2 {
+        font-family: "Cinzel", serif;
+        font-size: 34px;
+        font-weight: 400;
+        margin-bottom: 16px;
+        text-transform: uppercase;
+      }
+      .promo-slide-caption p {
+        color: #57524d;
+        font-size: 14px;
+        line-height: 1.8;
+        margin-bottom: 30px;
+        max-width: 460px;
+      }
+      .promo-action-btn {
+        background: #1c1917;
+        color: #faf9f5;
+        padding: 12px 32px;
+        border: none;
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        cursor: pointer;
+      }
+
+      /* DEEP DETAILED EXPERIENCE */
+      .premium-detail-overlay-view {
+        display: none;
+        padding: 20px 0;
+      }
+      .detail-columns-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        background: #ffffff;
+        border: 1px solid #e7e5e4;
+        padding: 60px;
+        margin-bottom: 80px;
+      }
+
+      .detail-media-gallery {
+        background: #f5f5f4;
+        padding: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .detail-media-gallery img {
+        max-width: 100%;
+        max-height: 460px;
+        object-fit: contain;
+      }
+      .detail-info-dock {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .detail-brand-badge {
+        color: #78716c;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 14px;
+      }
+      .detail-item-title {
+        font-size: 32px;
+        font-weight: 400;
+        color: #1c1917;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+      }
+      .detail-item-price {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1c1917;
+        margin-bottom: 30px;
+      }
+      .detail-description-para {
+        color: #57524d;
+        font-size: 15px;
+        line-height: 1.8;
+        margin-bottom: 40px;
+      }
+
+      .detail-action-buttons {
+        display: flex;
+        gap: 20px;
+      }
+      .detail-action-buttons button {
+        padding: 16px 40px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .detail-cart-trigger {
+        background: #f5f5f4;
+        color: #1c1917;
+        border: 1px solid #e7e5e4;
+      }
+      .detail-cart-trigger:hover {
+        background: #e7e5e4;
+      }
+      .detail-next-trigger {
+        background: #1c1917;
+        color: #faf9f5;
+      }
+      .detail-next-trigger:hover {
+        opacity: 0.9;
+      }
+
+      /* LUXURY TERMINAL */
+      .shipping-terminal-view {
+        display: none;
+        max-width: 580px;
+        margin: 40px auto;
+        background: #ffffff;
+        border: 1px solid #e7e5e4;
+        padding: 50px;
+      }
+
+      .terminal-title {
+        font-size: 24px;
+        font-weight: 400;
+        color: #1c1917;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+      }
+      .terminal-subtitle {
+        font-size: 13px;
+        color: #78716c;
+        margin-bottom: 40px;
+      }
+      .terminal-form-group {
+        margin-bottom: 26px;
+      }
+      .terminal-form-group label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #1c1917;
+        margin-bottom: 10px;
+      }
+      .terminal-form-group input,
+      .terminal-form-group textarea {
+        width: 100%;
+        background: #faf9f5;
+        border: 1px solid #d6d3d1;
+        padding: 12px 18px;
+        color: #1c1917;
+        font-size: 14px;
+        outline: none;
+      }
+      .terminal-form-group input:focus,
+      .terminal-form-group textarea:focus {
+        border-color: #1c1917;
+        background: #ffffff;
+      }
+      .terminal-form-group textarea {
+        height: 100px;
+        resize: none;
+      }
+
+      .terminal-action-dock {
+        display: flex;
+        gap: 16px;
+        margin-top: 40px;
+      }
+      .terminal-action-dock button {
+        flex: 1;
+        padding: 16px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: none;
+        cursor: pointer;
+      }
+      .terminal-back-btn {
+        background: #f5f5f4;
+        color: #1c1917;
+      }
+      .terminal-submit-btn {
+        background: #1c1917;
+        color: #faf9f5;
+      }
+
+      /* CATALOG INTERFACES */
+      .catalog-split-layout {
+        display: flex;
+        gap: 50px;
+        margin-top: 10px;
+      }
+      .filter-sidebar {
+        width: 240px;
+        flex-shrink: 0;
+        background: #ffffff;
+        border: 1px solid #e7e5e4;
+        padding: 30px;
+        height: fit-content;
+      }
+      .filter-block {
+        margin-bottom: 30px;
+        border-bottom: 1px solid #f5f5f4;
+        padding-bottom: 24px;
+      }
+      .filter-block-title {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 16px;
+        color: #78716c;
+      }
+      .filter-node {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-size: 13px;
+        color: #44403c;
+      }
+      .filter-node input {
+        accent-color: #1c1917;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+
+      .back-home-btn {
+        padding: 10px 20px;
+        cursor: pointer;
+        background: #ffffff;
+        color: #1c1917;
+        border: 1px solid #e7e5e4;
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="appSplashScreenScope">
+      <div style="text-align: center">
+        <div class="splash-logo-text">SkyMart</div>
+        <div class="splash-subtitle">Haute Collection</div>
+        <div class="splash-bar"></div>
+      </div>
+    </div>
+
+    <div class="navbar">
+      <div class="logo" onclick="renderAppHomepage()">SkyMart</div>
+      <div class="nav-links">
+        <span onclick="filterCategory('Electronics')">Electronics</span>
+        <span onclick="filterCategory('Fashion')">Fashion</span>
+        <span onclick="filterCategory('Home & Kitchen')">Home & Kitchen</span>
+        <span onclick="filterCategory('Books')">Books</span>
+        <span onclick="filterCategory('Groceries')">Groceries</span>
+      </div>
+      <div class="search-box">
+        <input
+          id="searchInput"
+          placeholder="Search archive..."
+          onkeydown="if (event.key === 'Enter') searchCatalog();"
+        />
+        <button onclick="searchCatalog()">
+          <i data-lucide="search" style="width: 14px; height: 14px"></i>
+        </button>
+      </div>
+      <div class="nav-actions">
+        <div onclick="showWishlistScreen()" class="counter-badge-container">
+          <i data-lucide="heart"></i>
+          <span id="wishlistCount">0</span>
+        </div>
+        <div onclick="goToCartPage()" class="counter-badge-container">
+          <i data-lucide="shopping-bag"></i>
+          <span id="cartCount">0</span>
+        </div>
+        <button id="authBtn" onclick="handleAuth()" class="auth-action-trigger">
+          Sign In
+        </button>
+      </div>
+    </div>
+
+    <div class="sales-ticker-banner">
+      <div class="sales-ticker-track">
+        <div class="sales-ticker-item">
+          ✦ Seasonal Archive Event: Enjoy up to
+          <span class="accent-gold">30% Reserved Discount</span>
+        </div>
+        <div class="sales-ticker-item">
+          ✦ Premium Complimentary Delivery on Orders Over ₹5,000
+        </div>
+        <div class="sales-ticker-item">
+          ✦ Atelier Studio Membership Perks Activated At Checkout
+        </div>
+        <div class="sales-ticker-item">
+          ✦ Curated New Arrivals Added to the Editorial Suite
+        </div>
+        <div class="sales-ticker-item">
+          ✦ Seasonal Archive Event: Enjoy up to
+          <span class="accent-gold">30% Reserved Discount</span>
+        </div>
+        <div class="sales-ticker-item">
+          ✦ Premium Complimentary Delivery on Orders Over ₹5,000
+        </div>
+        <div class="sales-ticker-item">
+          ✦ Atelier Studio Membership Perks Activated At Checkout
+        </div>
+        <div class="sales-ticker-item">
+          ✦ Curated New Arrivals Added to the Editorial Suite
+        </div>
+      </div>
+    </div>
+
+    <div id="homepageHeroScope">
+      <div class="hero-presentation-deck">
+        <h1>The Art of Selection</h1>
+        <p>
+          A meticulous assembly of modern architecture, timeless wardrobe
+          staples, and premium operational goods curated exclusively for
+          discerning eyes.
+        </p>
+        <button onclick="filterCategory('Electronics')">
+          Enter Collection
+        </button>
+      </div>
+
+      <div class="infinite-horizontal-scroller-frame">
+        <div class="scroller-inner-dock">
+          <div
+            class="category-pill-card"
+            onclick="filterCategory('Electronics')"
+          >
+            <span>Electronics</span>
+          </div>
+          <div class="category-pill-card" onclick="filterCategory('Fashion')">
+            <span>Fashion</span>
+          </div>
+          <div
+            class="category-pill-card"
+            onclick="filterCategory('Home & Kitchen')"
+          >
+            <span>Home & Kitchen</span>
+          </div>
+          <div class="category-pill-card" onclick="filterCategory('Books')">
+            <span>Books</span>
+          </div>
+          <div class="category-pill-card" onclick="filterCategory('Groceries')">
+            <span>Groceries</span>
+          </div>
+          <div
+            class="category-pill-card"
+            onclick="filterCategory('Electronics')"
+          >
+            <span>Electronics</span>
+          </div>
+          <div class="category-pill-card" onclick="filterCategory('Fashion')">
+            <span>Fashion</span>
+          </div>
+          <div
+            class="category-pill-card"
+            onclick="filterCategory('Home & Kitchen')"
+          >
+            <span>Home & Kitchen</span>
+          </div>
+          <div class="category-pill-card" onclick="filterCategory('Books')">
+            <span>Books</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-app-container" id="appMainViewport"></div>
+
+    <script>
+      let isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+      let activeCheckoutProductId = null;
+
+      const mockCategories = {
+        Electronics: [
+          "Smartphone",
+          "Wireless Earbuds",
+          "Smart Watch",
+          "Mechanical Keyboard",
+          "mouse",
+          "Mobile",
+          "headphones",
+          "camera",
+        ],
+        Fashion: [
+          "Denim Jacket",
+          "Leather Boots",
+          "kurta",
+          "dress",
+          "shoes",
+          "shirt",
+          "Jeans",
+          "Tshirt",
+          "suit",
+          "saree",
+        ],
+        "Home & Kitchen": [
+          "Air Fryer",
+          "Coffee Maker",
+          "decorative",
+          "decor",
+          "copper fry pan",
+          "morning mist mug",
+          "Coffee Maker",
+          "solara triply tadka pan",
+          "stainless steel frypan",
+        ],
+        Books: [
+          "Sci-Fi Thriller",
+          "Biography Collection",
+          "history",
+          "love theme",
+          "science",
+        ],
+      };
+      let datasetProductsPool = [];
+      let booksPool = [];
+
+      async function loadProductsFromAPI() {
+        try {
+          const response = await fetch(
+            "https://dummyjson.com/products?limit=190",
+          );
+          if (!response.ok) {
+            throw new Error("Unable to load products");
+          }
+          const data = await response.json();
+          datasetProductsPool = data.products.map((product) => {
+            let category = "Others";
+            if (
+              [
+                "smartphones",
+                "laptops",
+                "tablets",
+                "mobile-accessories",
+              ].includes(product.category)
+            )
+              category = "Electronics";
+            else if (
+              [
+                "mens-shirts",
+                "mens-shoes",
+                "mens-watches",
+                "womens-dresses",
+                "womens-shoes",
+                "womens-watches",
+                "tops",
+                "sunglasses",
+                "bags",
+                "jewellery",
+              ].includes(product.category)
+            )
+              category = "Fashion";
+            else if (
+              ["furniture", "home-decoration", "kitchen-accessories"].includes(
+                product.category,
+              )
+            )
+              category = "Home & Kitchen";
+            else if (product.category === "groceries") category = "Groceries";
+
+            return {
+              id: product.id,
+              name: product.title,
+              brand: product.brand || "SkyMart",
+              category,
+              price: Math.round(product.price * 20),
+              img:
+                product.images && product.images.length
+                  ? product.images[0]
+                  : product.thumbnail,
+              description: product.description,
+            };
+          });
+
+          await loadBooksFromAPI();
+
+          function getProductImage(productName) {
+            return `https://source.unsplash.com/600x600/?${encodeURIComponent(productName)}`;
+          }
+
+          const groceryProducts = [
+            {
+              id: 2001,
+              name: "Basmati Rice (5kg)",
+              brand: "India Gate",
+              category: "Groceries",
+              price: 450,
+              img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&auto=format&fit=crop",
+              description: "Premium long-grain basmati rice, aged for aroma",
+            },
+            {
+              id: 2002,
+              name: "Sunflower Oil (1L)",
+              brand: "Fortune",
+              category: "Groceries",
+              price: 180,
+              img: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=500&auto=format&fit=crop",
+              description: "Refined sunflower cooking oil",
+            },
+            {
+              id: 2003,
+              name: "Whole Wheat Atta (5kg)",
+              brand: "Aashirvaad",
+              category: "Groceries",
+              price: 320,
+              img: "https://images.unsplash.com/photo-1568254183919-78a4f43a2877?w=500&auto=format&fit=crop",
+              description: "Stoneground whole wheat flour",
+            },
+            {
+              id: 2004,
+              name: "Refined Sugar (1kg)",
+              brand: "Madhur",
+              category: "Groceries",
+              price: 55,
+              img: "https://images.unsplash.com/photo-1610137340053-91d8a2582811?w=500&auto=format&fit=crop",
+              description: "Pure crystalline refined sugar",
+            },
+            {
+              id: 2005,
+              name: "Iodized Salt (1kg)",
+              brand: "Tata",
+              category: "Groceries",
+              price: 30,
+              img: "https://images.unsplash.com/photo-1518110925495-b37653d34630?w=500&auto=format&fit=crop",
+              description: "Iodized table salt",
+            },
+            {
+              id: 2006,
+              name: "Toor Dal (1kg)",
+              brand: "24 Mantra",
+              category: "Groceries",
+              price: 165,
+              img: "https://images.unsplash.com/photo-1604908554049-a5a1c5cf17a3?w=500&auto=format&fit=crop",
+              description: "Organic toor dal lentils",
+            },
+            {
+              id: 2007,
+              name: "Moong Dal (1kg)",
+              brand: "Organic India",
+              category: "Groceries",
+              price: 150,
+              img: "https://images.unsplash.com/photo-1599909533730-9c6ff1fe0e15?w=500&auto=format&fit=crop",
+              description: "Split yellow moong dal",
+            },
+            {
+              id: 2008,
+              name: "Tea Powder (500g)",
+              brand: "Tata Tea",
+              category: "Groceries",
+              price: 220,
+              img: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=500&auto=format&fit=crop",
+              description: "Premium Assam tea blend",
+            },
+            {
+              id: 2009,
+              name: "Instant Coffee (200g)",
+              brand: "Bru",
+              category: "Groceries",
+              price: 260,
+              img: "https://images.unsplash.com/photo-1559525839-d9acfd5b8c4f?w=500&auto=format&fit=crop",
+              description: "Rich aroma instant coffee",
+            },
+            {
+              id: 2010,
+              name: "Toned Milk (1L)",
+              brand: "Amul",
+              category: "Groceries",
+              price: 68,
+              img: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&auto=format&fit=crop",
+              description: "Fresh toned dairy milk",
+            },
+            {
+              id: 2011,
+              name: "Farm Eggs (12)",
+              brand: "Farm Fresh",
+              category: "Groceries",
+              price: 90,
+              img: "https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?w=500&auto=format&fit=crop",
+              description: "Free-range farm eggs",
+            },
+            {
+              id: 2012,
+              name: "Brown Bread",
+              brand: "Britannia",
+              category: "Groceries",
+              price: 45,
+              img: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&auto=format&fit=crop",
+              description: "Whole-wheat brown bread loaf",
+            },
+            {
+              id: 2013,
+              name: "Maggi Noodles (4 pack)",
+              brand: "Maggi",
+              category: "Groceries",
+              price: 60,
+              img: "https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=500&auto=format&fit=crop",
+              description: "2-minute instant masala noodles",
+            },
+            {
+              id: 2014,
+              name: "Parle-G Biscuits",
+              brand: "Parle",
+              category: "Groceries",
+              price: 10,
+              img: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=500&auto=format&fit=crop",
+              description: "Glucose biscuits family pack",
+            },
+            {
+              id: 2015,
+              name: "Detergent Powder (1kg)",
+              brand: "Surf Excel",
+              category: "Groceries",
+              price: 230,
+              img: "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=500&auto=format&fit=crop",
+              description: "Stain-removing laundry detergent",
+            },
+            {
+              id: 2016,
+              name: "Bath Soap (4 pack)",
+              brand: "Lux",
+              category: "Groceries",
+              price: 160,
+              img: "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=500&auto=format&fit=crop",
+              description: "Moisturising beauty soap bars",
+            },
+            {
+              id: 2017,
+              name: "Shampoo (340ml)",
+              brand: "Clinic Plus",
+              category: "Groceries",
+              price: 180,
+              img: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=500&auto=format&fit=crop",
+              description: "Strong & long anti-hairfall shampoo",
+            },
+            {
+              id: 2018,
+              name: "Toothpaste (200g)",
+              brand: "Colgate",
+              category: "Groceries",
+              price: 95,
+              img: "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=500&auto=format&fit=crop",
+              description: "Cavity protection toothpaste",
+            },
+            {
+              id: 2019,
+              name: "Pure Ghee (500ml)",
+              brand: "Amul",
+              category: "Groceries",
+              price: 340,
+              img: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500&auto=format&fit=crop",
+              description: "Pure cow ghee",
+            },
+            {
+              id: 2020,
+              name: "Cooking Oil (5L)",
+              brand: "Freedom",
+              category: "Groceries",
+              price: 850,
+              img: "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?w=500&auto=format&fit=crop",
+              description: "Refined sunflower oil jar",
+            },
+            {
+              id: 2021,
+              name: "Red Chilli Powder (200g)",
+              brand: "MDH",
+              category: "Groceries",
+              price: 85,
+              img: "https://images.unsplash.com/photo-1599909533730-9c6ff1fe0e15?w=500&auto=format&fit=crop",
+              description: "Spicy red chilli powder",
+            },
+            {
+              id: 2022,
+              name: "Turmeric Powder (200g)",
+              brand: "Everest",
+              category: "Groceries",
+              price: 70,
+              img: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=500&auto=format&fit=crop",
+              description: "Pure haldi turmeric powder",
+            },
+            {
+              id: 2023,
+              name: "Garam Masala (100g)",
+              brand: "MDH",
+              category: "Groceries",
+              price: 75,
+              img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&auto=format&fit=crop",
+              description: "Aromatic blended garam masala",
+            },
+            {
+              id: 2024,
+              name: "Tomato Ketchup (1kg)",
+              brand: "Kissan",
+              category: "Groceries",
+              price: 135,
+              img: "https://images.unsplash.com/photo-1571091655789-405eb7a3a3a8?w=500&auto=format&fit=crop",
+              description: "Fresh tomato ketchup",
+            },
+            {
+              id: 2025,
+              name: "Honey (500g)",
+              brand: "Dabur",
+              category: "Groceries",
+              price: 240,
+              img: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=500&auto=format&fit=crop",
+              description: "100% pure natural honey",
+            },
+            {
+              id: 2026,
+              name: "Peanut Butter (340g)",
+              brand: "Sundrop",
+              category: "Groceries",
+              price: 199,
+              img: "https://images.unsplash.com/photo-1501012413054-3afa1b08fc59?w=500&auto=format&fit=crop",
+              description: "Creamy peanut butter",
+            },
+            {
+              id: 2027,
+              name: "Oats (1kg)",
+              brand: "Quaker",
+              category: "Groceries",
+              price: 210,
+              img: "https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=500&auto=format&fit=crop",
+              description: "Heart-healthy rolled oats",
+            },
+            {
+              id: 2028,
+              name: "Cornflakes (475g)",
+              brand: "Kelloggs",
+              category: "Groceries",
+              price: 265,
+              img: "https://images.unsplash.com/photo-1521483451569-e33803c0330c?w=500&auto=format&fit=crop",
+              description: "Crunchy breakfast cornflakes",
+            },
+            {
+              id: 2029,
+              name: "Dark Chocolate (90g)",
+              brand: "Cadbury",
+              category: "Groceries",
+              price: 120,
+              img: "https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=500&auto=format&fit=crop",
+              description: "Bournville dark chocolate",
+            },
+            {
+              id: 2030,
+              name: "Basmati Rice (1kg)",
+              brand: "Daawat",
+              category: "Groceries",
+              price: 120,
+              img: "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=500&auto=format&fit=crop",
+              description: "Daily-cook basmati rice",
+            },
+          ];
+          datasetProductsPool.push(...groceryProducts);
+          datasetProductsPool.sort(() => Math.random() - 0.5);
+
+          localStorage.setItem(
+            "products_db",
+            JSON.stringify(datasetProductsPool),
+          );
+          renderAppHomepage();
+        } catch (err) {
+          console.error(err);
+          document.getElementById("appMainViewport").innerHTML =
+            "<h2 style='padding:40px'>Unable to load products.</h2>";
+        }
+      }
+
+      async function loadBooksFromAPI() {
+        try {
+          const response = await fetch(
+            "https://openlibrary.org/search.json?q=bestseller&limit=100",
+          );
+          const data = await response.json();
+          booksPool = data.docs.map((book, index) => ({
+            id: 100000 + index,
+            name: book.title || "Unknown Book",
+            brand:
+              (book.author_name && book.author_name[0]) || "Unknown Author",
+            category: "Books",
+            price: Math.floor(Math.random() * 800) + 200,
+            img: book.cover_i
+              ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`
+              : "https://via.placeholder.com/300x450?text=No+Cover",
+            description:
+              book.first_sentence?.[0] ||
+              `Written by ${(book.author_name && book.author_name[0]) || "Unknown Author"}`,
+          }));
+          datasetProductsPool.push(...booksPool);
+        } catch (err) {
+          console.error("Books API Error:", err);
+        }
+      }
+
+      let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+      let wishlistItems = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+      function goToCartPage() {
+        window.location.href = "cart.html";
+      }
+
+      function handleAuth() {
+        if (isLoggedIn) {
+          isLoggedIn = false;
+          localStorage.setItem("isLoggedIn", "false");
+          document.getElementById("authBtn").innerText = "Sign In";
+        } else {
+          window.location.href = "login.html";
+        }
+      }
+
+      function showProductDetailedView(productId) {
+        activeCheckoutProductId = productId;
+        const product = datasetProductsPool.find((p) => p.id === productId);
+        if (!product) return;
+
+        const keywords = [
+          product.category,
+          product.brand,
+          ...String(product.name)
+            .toLowerCase()
+            .split(/\s+/)
+            .filter((w) => w.length > 2),
+        ];
+        const relatableItems = datasetProductsPool
+          .filter(
+            (p) =>
+              p.id !== product.id &&
+              (p.category === product.category || p.brand === product.brand),
+          )
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 5);
+
+        document.getElementById("homepageHeroScope").style.display = "none";
+        const container = document.getElementById("appMainViewport");
+
+        container.innerHTML = `
+          <div class="premium-detail-overlay-view" style="display: block;">
+            <div style="margin-bottom: 40px;">
+                <button onclick="renderAppHomepage()" class="back-home-btn"><i data-lucide="arrow-left"></i> Gallery Archive</button>
+            </div>
+            <div class="detail-columns-layout">
+                <div class="detail-media-gallery">
+                <img src="${product.img}" alt="${product.name}" onerror="this.onerror=null;this.src='https://via.placeholder.com/600x600?text=Image+Not+Available'">
+                </div>
+                <div class="detail-info-dock">
+                    <div class="detail-brand-badge">${product.brand}</div>
+                    <h1 class="detail-item-title">${product.name}</h1>
+                    <div class="detail-item-price">₹${product.price}</div>
+                    <p class="detail-description-para">${product.description}</p>
+                    <div class="detail-action-buttons">
+                        <button class="detail-cart-trigger" onclick="addToCartScope(event, ${product.id})">Add to Bag</button>
+                        <button class="detail-next-trigger" onclick="showShippingTerminalView()">Proceed to Destination</button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3 class="premium-heading" style="font-size: 18px; text-transform: uppercase; margin-bottom: 30px; letter-spacing: 1px;">Complementary Additions</h3>
+                ${constructGridHTML(relatableItems)}
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function showShippingTerminalView() {
+        if (!isLoggedIn) {
+          alert("Authorization required. Please log in.");
+          return;
+        }
+
+        const container = document.getElementById("appMainViewport");
+        container.innerHTML = `
+          <div class="shipping-terminal-view" style="display: block;">
+            <h2 class="terminal-title">Destination Profile</h2>
+            <p class="terminal-subtitle">Specify secure tracking targets below.</p>
+            <div class="terminal-form-group">
+                <label>Legal Name</label>
+                <input type="text" id="shipName" placeholder="e.g. Sterling Hunt" required>
+            </div>
+            <div class="terminal-form-group">
+                <label>Contact Number</label>
+                <input type="tel" id="shipPhone" placeholder="e.g. +91 9876543210" required>
+            </div>
+            <div class="terminal-form-group">
+                <label>Full Mailing Address</label>
+                <textarea id="shipAddress" placeholder="Building profile, street vector, city details..."></textarea>
+            </div>
+            <div class="terminal-form-group">
+                <label>Postal Code</label>
+                <input type="text" id="shipZip" placeholder="e.g. 560001">
+            </div>
+            <div class="terminal-action-dock">
+                <button class="terminal-back-btn" onclick="showProductDetailedView(${activeCheckoutProductId})">Back</button>
+                <button class="terminal-submit-btn" onclick="executeFinalSecureCheckout()">Complete Request</button>
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      async function executeFinalSecureCheckout() {
+        const name = document.getElementById("shipName").value.trim();
+        const phone = document.getElementById("shipPhone").value.trim();
+        const address = document.getElementById("shipAddress").value.trim();
+        const zip = document.getElementById("shipZip").value.trim();
+
+        if (!name || !phone || !address || !zip) {
+          alert("Please complete all shipping parameters.");
+          return;
+        }
+
+        const product = datasetProductsPool.find(
+          (p) => p.id === activeCheckoutProductId,
+        );
+        if (!product) return;
+
+        localStorage.setItem(
+          "last_shipping_coordinates",
+          JSON.stringify({ name, phone, address, zip }),
+        );
+
+        const gatewayConfigurationOptions = {
+          key: "rzp_test_YOUR_KEY_HERE",
+          amount: product.price * 100,
+          currency: "INR",
+          name: "SkyMart",
+          description: `Acquisition of ${product.name}`,
+          handler: function (res) {
+            alert(
+              `Purchase Finalized.\nReceipt ID: ${res.razorpay_payment_id}`,
+            );
+            renderAppHomepage();
+          },
+          prefill: { name: name, contact: phone },
+          theme: { color: "#1C1917" },
+        };
+
+        try {
+          const rzpGatewayInstance = new Razorpay(gatewayConfigurationOptions);
+          rzpGatewayInstance.open();
+        } catch (err) {
+          alert(
+            `Failsafe Fulfillment Simulation:\n\nConfirmed: ${product.name}\nInvoice: ₹${product.price}\n\nShipping Route Set:\n${name}\n${address}, PIN: ${zip}`,
+          );
+          renderAppHomepage();
+        }
+      }
+
+      function constructGridHTML(productsList, isWishview = false) {
+        if (productsList.length === 0) {
+          return `<p style="padding:40px 0; color:#78716C; font-size:13px;">No options are active within this specific line.</p>`;
+        }
+        let htmlOutput = `<div class="products-grid-deck">`;
+        productsList.forEach((p) => {
+          const activeClass = wishlistItems.includes(p.id) ? "active" : "";
+          htmlOutput += `
+            <div class="product-item-card" onclick="showProductDetailedView(${p.id})">
+              <div class="heart-favorite-trigger ${activeClass}" id="heart-node-${p.id}" onclick="triggerWishlistToggle(event, ${p.id})">
+                  <i data-lucide="heart" style="width:14px; height:14px; color:#1C1917;"></i>
+              </div>
+              <div class="card-media-scope"><img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/600x600?text=Product'"></div>
+              <div class="card-text-scope">
+                <div class="brand-tag">${p.brand}</div>
+                <h3>${p.name}</h3>
+                <div class="price-tag">₹${p.price}</div>
+              </div>
+              <div class="card-button-actions">
+                ${isWishview ? `<button onclick="event.stopPropagation(); removeWishlistItemDirect(${p.id})">Remove</button>` : `<button onclick="event.stopPropagation(); addToCartScope(event, ${p.id})">Add to Bag</button>`}
+                <button onclick="event.stopPropagation(); showProductDetailedView(${p.id})">View Close-Up</button>
+              </div>
+            </div>`;
+        });
+        htmlOutput += `</div>`;
+        return htmlOutput;
+      }
+
+      let activeLiveCategory = "";
+      let selectedLivePriceCap = Infinity;
+
+      function executeDynamicFilters() {
+        let filteredList = datasetProductsPool.filter(
+          (p) => p.category === activeLiveCategory,
+        );
+        if (selectedLivePriceCap !== Infinity) {
+          filteredList = filteredList.filter(
+            (p) => p.price <= selectedLivePriceCap,
+          );
+        }
+        const pane = document.getElementById("filteredCatalogDeckPane");
+        if (pane) pane.innerHTML = constructGridHTML(filteredList);
+        lucide.createIcons();
+      }
+
+      function updatePriceFilter(maxVal) {
+        selectedLivePriceCap = maxVal;
+        executeDynamicFilters();
+      }
+
+      function filterCategory(catName) {
+        activeLiveCategory = catName;
+        selectedLivePriceCap = Infinity;
+        document.getElementById("homepageHeroScope").style.display = "none";
+        const matchedProducts = datasetProductsPool.filter(
+          (p) => p.category === catName,
+        );
+        const viewContainer = document.getElementById("appMainViewport");
+
+        viewContainer.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:16px; margin-bottom:40px; border-bottom:1px solid #E7E5E4;">
+            <div>
+              <p style="font-size:10px; color:#78716C; text-transform:uppercase; font-weight:600; letter-spacing:1px; margin-bottom:4px;">Collection Line</p>
+              <h2 style="border:none; padding:0; margin:0;">${catName}</h2>
+            </div>
+            <button onclick="renderAppHomepage()" class="back-home-btn"><i data-lucide="arrow-left"></i> Main Slate</button>
+          </div>
+          <div class="catalog-split-layout">
+            <div class="filter-sidebar">
+              <div class="filter-block">
+                <div class="filter-block-title">Category Scope</div>
+                <div class="filter-node"><input type="checkbox" checked disabled> ${catName}</div>
+              </div>
+              <div class="filter-block">
+                <div class="filter-block-title">Price Range</div>
+                <div class="filter-node"><input type="radio" name="price-range" onclick="updatePriceFilter(999)"> Under ₹999</div>
+                <div class="filter-node"><input type="radio" name="price-range" onclick="updatePriceFilter(1999)"> Under ₹1999</div>
+                <div class="filter-node"><input type="radio" name="price-range" onclick="updatePriceFilter(Infinity)" checked> View Complete Slate</div>
+              </div>
+            </div>
+            <div class="catalog-content-pane" style="flex-grow:1;" id="filteredCatalogDeckPane">
+              ${constructGridHTML(matchedProducts)}
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function renderAppHomepage() {
+        document.getElementById("homepageHeroScope").style.display = "block";
+        const container = document.getElementById("appMainViewport");
+
+        const highlightTech = datasetProductsPool
+          .filter((p) => p.category === "Electronics")
+          .slice(0, 4);
+        const highlightFashion = datasetProductsPool
+          .filter((p) => p.category === "Fashion")
+          .slice(0, 4);
+        const highlightHome = datasetProductsPool
+          .filter((p) => p.category === "Home & Kitchen")
+          .slice(0, 4);
+        const highlightBooks = datasetProductsPool
+          .filter((p) => p.category === "Books")
+          .slice(0, 4);
+        const highlightGroceries = datasetProductsPool
+          .filter((p) => p.category === "Groceries")
+          .slice(0, 4);
+
+        container.innerHTML = `
+          <div class="section-title-wrapper"><h2>Pinnacle Technology</h2></div>
+          ${constructGridHTML(highlightTech)}
+          <div class="curated-slideshow-view">
+            <div class="promoSlide">
+              <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200" alt="Editorial Fashion">
+              <div class="promo-slide-caption">
+                <h2>The Minimalist Silhouette</h2>
+                <p>Architectural lines meet absolute textile comfort.</p>
+                <button class="promo-action-btn" onclick="filterCategory('Fashion')">Examine Range</button>
+              </div>
+            </div>
+            <div class="promoSlide">
+              <img src="https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1200" alt="Editorial Tech">
+              <div class="promo-slide-caption">
+                <h2>Tactile Precision Instruments</h2>
+                <p>Refining digital workspace environments.</p>
+                <button class="promo-action-btn" onclick="filterCategory('Electronics')">Review Instruments</button>
+              </div>
+            </div>
+          </div>
+          <div class="section-title-wrapper"><h2>Curated Wardrobe</h2></div>
+          ${constructGridHTML(highlightFashion)}
+          <div class="section-title-wrapper"><h2>Home & Kitchen</h2></div>
+          ${constructGridHTML(highlightHome)}
+          <div class="section-title-wrapper"><h2>Books</h2></div>
+          ${constructGridHTML(highlightBooks)}
+          <div class="section-title-wrapper"><h2>Groceries</h2></div>
+          ${constructGridHTML(highlightGroceries)}
+        `;
+        refreshIndicators();
+        lucide.createIcons();
+        initializeSlideshowLoop();
+      }
+
+      function triggerWishlistToggle(event, id) {
+        event.stopPropagation();
+        const heartNode = document.getElementById(`heart-node-${id}`);
+        const positionIdx = wishlistItems.indexOf(id);
+
+        if (positionIdx === -1) {
+          wishlistItems.push(id);
+          if (heartNode) heartNode.classList.add("active");
+        } else {
+          wishlistItems.splice(positionIdx, 1);
+          if (heartNode) heartNode.classList.remove("active");
+        }
+        localStorage.setItem("wishlist", JSON.stringify(wishlistItems));
+        refreshIndicators();
+      }
+
+      function removeWishlistItemDirect(id) {
+        wishlistItems = wishlistItems.filter((item) => item !== id);
+        localStorage.setItem("wishlist", JSON.stringify(wishlistItems));
+        showWishlistScreen();
+        refreshIndicators();
+      }
+
+      function showWishlistScreen() {
+        document.getElementById("homepageHeroScope").style.display = "none";
+        const container = document.getElementById("appMainViewport");
+        const activeFavorites = datasetProductsPool.filter((p) =>
+          wishlistItems.includes(p.id),
+        );
+
+        container.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom: 16px; margin-bottom: 40px; border-bottom:1px solid #E7E5E4;">
+            <div>
+              <p style="font-size:10px; color:#78716C; text-transform:uppercase; font-weight:600; letter-spacing:1px; margin-bottom:4px;">Private Storage</p>
+              <h2 style="border:none; padding:0; margin:0;">Saved Collection</h2>
+            </div>
+            <button onclick="renderAppHomepage()" class="back-home-btn"><i data-lucide="arrow-left"></i> Gallery Archive</button>
+          </div>
+          <div id="wishlistMasterPanelScope">
+            ${activeFavorites.length > 0 ? constructGridHTML(activeFavorites, true) : `<p style="color:#78716C; font-size:14px;">Your private queue is completely vacant.</p>`}
+          </div>
+        `;
+        lucide.createIcons();
+      }
+      document
+        .getElementById("searchInput")
+        .addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            searchCatalog();
+          }
+        });
+
+      function searchCatalog() {
+        const term = document
+          .getElementById("searchInput")
+          .value.toLowerCase()
+          .trim();
+
+        if (!term) return;
+
+        document.getElementById("homepageHeroScope").style.display = "none";
+
+        const tokens = term.split(/\s+/).filter((t) => t.length > 1);
+
+        const haystack = (p) =>
+          `${p.name} ${p.brand} ${p.description} ${p.category}`.toLowerCase();
+
+        // Exact phrase match first
+        const exactMatches = datasetProductsPool.filter((p) =>
+          haystack(p).includes(term),
+        );
+
+        // Token-based matches: score by number of tokens found
+        const scored = datasetProductsPool
+          .map((p) => {
+            const hay = haystack(p);
+            const score = tokens.reduce(
+              (s, t) => s + (hay.includes(t) ? 1 : 0),
+              0,
+            );
+            return { p, score };
+          })
+          .filter(
+            (x) => x.score > 0 && !exactMatches.some((m) => m.id === x.p.id),
+          )
+          .sort((a, b) => b.score - a.score)
+          .map((x) => x.p);
+
+        const matchedProducts = [...exactMatches, ...scored];
+
+        let relatedProducts = [];
+
+        if (matchedProducts.length > 0) {
+          // Build keyword set from search term + matched product names
+          const stop = new Set([
+            "the",
+            "and",
+            "for",
+            "with",
+            "from",
+            "this",
+            "that",
+            "your",
+            "powder",
+            "pack",
+            "set",
+            "pcs",
+            "new",
+          ]);
+          const keywords = new Set();
+          tokens.forEach((t) => {
+            if (!stop.has(t)) keywords.add(t);
+          });
+          matchedProducts.slice(0, 3).forEach((m) => {
+            m.name
+              .toLowerCase()
+              .split(/\s+/)
+              .forEach((w) => {
+                const cw = w.replace(/[^a-z0-9]/g, "");
+                if (cw.length > 2 && !stop.has(cw)) keywords.add(cw);
+              });
+          });
+
+          // Score remaining products by keyword overlap in name/description/brand
+          const related = datasetProductsPool
+            .filter((p) => !matchedProducts.some((m) => m.id === p.id))
+            .map((p) => {
+              const hay = `${p.name} ${p.brand} ${p.description}`.toLowerCase();
+              let score = 0;
+              keywords.forEach((k) => {
+                if (hay.includes(k)) score++;
+              });
+              return { p, score };
+            })
+            .filter((x) => x.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 8)
+            .map((x) => x.p);
+
+          relatedProducts = [...matchedProducts, ...related];
+        } else {
+          relatedProducts = datasetProductsPool
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 8);
+        }
+
+        const container = document.getElementById("appMainViewport");
+
+        const matchedHTML =
+          matchedProducts.length > 0
+            ? `<div style="margin-bottom:48px;">
+         <p style="font-size:11px;color:#78716C;text-transform:uppercase;font-weight:600;letter-spacing:2px;margin-bottom:6px;">Search Results</p>
+         <h2 style="border:none;padding:0;margin:0 0 24px 0;">${matchedProducts.length} result${matchedProducts.length > 1 ? "s" : ""} for "${term}"</h2>
+         ${constructGridHTML(matchedProducts)}
+       </div>`
+            : `<div style="margin-bottom:48px;padding:32px;background:#f5f4f0;border:1px solid #e7e5e4;border-radius:8px;text-align:center;">
+         <p style="font-size:14px;color:#1c1917;font-weight:600;margin-bottom:6px;">No exact matches for "${term}"</p>
+         <p style="font-size:13px;color:#78716C;">Browse related items handpicked for you below.</p>
+       </div>`;
+
+        const relatedOnly = relatedProducts.filter(
+          (p) => !matchedProducts.some((m) => m.id === p.id),
+        );
+        const relatedHTML =
+          relatedOnly.length > 0
+            ? `<div>
+         <p style="font-size:11px;color:#78716C;text-transform:uppercase;font-weight:600;letter-spacing:2px;margin-bottom:6px;">Customers also viewed</p>
+         <h2 style="border:none;padding:0;margin:0 0 24px 0;">Related Products</h2>
+         ${constructGridHTML(relatedOnly)}
+       </div>`
+            : "";
+
+        container.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;padding-bottom:16px;border-bottom:1px solid #E7E5E4;">
+      <h2 style="border:none;padding:0;margin:0;font-size:20px;">Showing results for "${term}"</h2>
+      <button onclick="renderAppHomepage()" class="back-home-btn">
+        <i data-lucide="arrow-left"></i> Back
+      </button>
+    </div>
+    ${matchedHTML}
+    ${relatedHTML}
+  `;
+
+        lucide.createIcons();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function refreshIndicators() {
+        document.getElementById("cartCount").innerText = cartItems.length;
+        document.getElementById("wishlistCount").innerText =
+          wishlistItems.length;
+      }
+
+      function addToCartScope(event, id) {
+        event.stopPropagation();
+        cartItems.push(id);
+        localStorage.setItem("cart", JSON.stringify(cartItems));
+        refreshIndicators();
+      }
+
+      let activePromoIndex = 0;
+      let promoTimer = null;
+
+      function initializeSlideshowLoop() {
+        if (promoTimer) clearInterval(promoTimer);
+        let slides = document.getElementsByClassName("promoSlide");
+        if (slides.length === 0) return;
+        for (let i = 0; i < slides.length; i++) {
+          slides[i].style.display = "none";
+        }
+        activePromoIndex++;
+        if (activePromoIndex > slides.length) activePromoIndex = 1;
+        slides[activePromoIndex - 1].style.display = "block";
+        promoTimer = setInterval(initializeSlideshowLoop, 6000);
+      }
+
+      window.onload = function () {
+        if (isLoggedIn)
+          document.getElementById("authBtn").innerText = "Sign Out";
+        loadProductsFromAPI();
+        setTimeout(() => {
+          const splashNode = document.getElementById("appSplashScreenScope");
+          if (splashNode) {
+            splashNode.style.opacity = "0";
+            setTimeout(() => splashNode.remove(), 500);
+          }
+        }, 1000);
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "Remix: SkyMart Haute",
+  "description": "An ultra-premium, beautifully crafted curated shopping experience for fashion, high-end electronics, elite home appliances, and collector books in a unified React layout.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
