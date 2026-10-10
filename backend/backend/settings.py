@@ -172,9 +172,16 @@ CORS_ALLOW_CREDENTIALS = True
 # ============================================================
 
 # Razorpay Test Keys
-RAZORPAY_KEY_ID = "rzp_test_T8GTuk6CU21vta"
-RAZORPAY_KEY_SECRET = "m3Gw6abUowajb1PyXfl7Jn0H"
+# ✅ USE ENV VARS
+RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID", "rzp_test_TmJvK3rMnjVPiO").strip()
+RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET", "8oh4TrVgSyYbeggRD1JBdcrR").strip()
 RAZORPAY_CURRENCY = "INR"
+
+if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
+    print("❌ Razorpay keys NOT loaded! Check env vars.")
+else:
+    print(f"✅ Razorpay Key ID loaded: {RAZORPAY_KEY_ID[:15]}...")
+    print(f"✅ Razorpay Secret length: {len(RAZORPAY_KEY_SECRET)}")
 
 # For production, use environment variables instead of hardcoding:
 # RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
@@ -195,3 +202,9 @@ STATICFILES_DIRS = []
 static_dir = os.path.join(BASE_DIR, 'static')
 if os.path.exists(static_dir):
     STATICFILES_DIRS = [static_dir]
+
+    # Debug (remove in production)
+if RAZORPAY_KEY_ID:
+    print(f"✅ Razorpay Key ID loaded: {RAZORPAY_KEY_ID[:15]}...")
+else:
+    print("❌ Razorpay keys NOT loaded!")
