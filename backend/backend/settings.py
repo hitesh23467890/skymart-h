@@ -86,6 +86,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -178,3 +179,19 @@ RAZORPAY_CURRENCY = "INR"
 # For production, use environment variables instead of hardcoding:
 # RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
 # RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# ✅ WhiteNoise storage
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# ✅ Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ✅ Add static directory if it exists
+STATICFILES_DIRS = []
+static_dir = os.path.join(BASE_DIR, 'static')
+if os.path.exists(static_dir):
+    STATICFILES_DIRS = [static_dir]
