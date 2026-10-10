@@ -26,6 +26,8 @@ from django.http import JsonResponse
 import json
 import hmac
 import hashlib
+from .models import DeliveryLocation  # add to imports
+from .utils_delivery import haversine_km, estimate_eta_minutes
 
 def get_razorpay_client():
     """Create a Razorpay client lazily using current settings."""
@@ -1543,7 +1545,7 @@ def test_skycoins_data(request):
 # SPLIT PAYMENT VIEWS
 # ============================================================
 
-from .models import GroupOrder, GroupOrderPayment
+from .models import GroupOrder, GroupOrderPayment,DeliveryLocation
 import json
 import uuid
 
@@ -1718,7 +1720,7 @@ def verify_member_payment(request):
         # Check if all payments are done
         group_order = payment.group_order
         all_payments = group_order.payments.all()
-        all_paid = all_p.status == 'paid' for p in all_payments)
+        all_paid = all(p.status == 'paid' for p in all_payments)
         
         if all_paid:
             group_order.status = 'completed'
@@ -1793,3 +1795,115 @@ def get_group_order_status(request):
             'success': False,
             'error': str(e)
         }, status=500)
+
+
+    # ============================================================
+# DELIVERY LOCATION VIEWS
+# ============================================================
+
+
+# Store coordinates (SKYMART fulfillment center)
+# Change these to your actual store location before the expo
+SKYMART_STORE_LAT = 12.9716
+SKYMART_STORE_LNG = 77.5946
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def save_location(request):
+    """Save or update a user's location for a room."""
+    try:
+        user = get_user_from_token(request)
+        if not user:
+            return JsonResponse({"success": False, "error": "Authentication required"}, status=401)
+
+        data = json.loads(request.body)
+        room_id = data.get("room_id")
+        lat = data.get("lat")
+        lng = data.get("lng")
+
+        if not room_id or lat is None or lng is None:
+            return JsonResponse({"success": False, "error": "room_id, lat, lng required"}, status=400)
+
+        loc, _ = DeliveryLocation.objects.update_or_create(
+            room_id=room_id,
+            user=user,
+            defaults={
+                "username": user.username or user.first_name or user.email,
+                "lat": lat,
+                "lng": lng,
+            },
+        )
+        return JsonResponse({
+            "success": True,
+            "location": {
+                "user_id": user.id,
+                "username": loc.username,
+                "lat": float(loc.lat),
+                "lng": float(loc.lng),
+            },
+        })
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_room_locations(request):
+    """Get all delivery locations for a room."""
+    room_id = request.GET.get("room_id")
+    if not room_id:
+        return JsonResponse({"success": False, "error": "room_id required"}, status=400)
+
+    locations = DeliveryLocation.objects.filter(room_id=room_id)
+    data = []
+    for loc in locations:
+        data.append({
+            "user_id": loc.user.id,
+            "username": loc.username,
+            "lat": float(loc.lat),
+            "lng": float(loc.lng),
+        })
+    return JsonResponse({
+        "success": True,
+        "store": {"lat": SKYMART_STORE_LAT, "lng": SKYMART_STORE_LNG},
+        "locations": data,
+    })
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def compute_nearest_friend(request):
+    """Compute which friend in a room is closest to the SKYMART store."""
+    room_id = request.GET.get("room_id")
+    if not room_id:
+        return JsonResponse({"success": False, "error": "room_id required"}, status=400)
+
+    locations = DeliveryLocation.objects.filter(room_id=room_id)
+    if not locations.exists():
+        return JsonResponse({"success": False, "error": "No locations shared yet"}, status=404)
+
+    distances = []
+    for loc in locations:
+        dist = haversine_km(
+            SKYMART_STORE_LAT, SKYMART_STORE_LNG,
+            float(loc.lat), float(loc.lng),
+        )
+        distances.append({
+            "user_id": loc.user.id,
+            "username": loc.username,
+            "lat": float(loc.lat),
+            "lng": float(loc.lng),
+            "distance_km": round(dist, 2),
+            "eta_minutes": estimate_eta_minutes(dist),
+        })
+
+    distances.sort(key=lambda d: d["distance_km"])
+    return JsonResponse({
+        "success": True,
+        "store": {"lat": SKYMART_STORE_LAT, "lng": SKYMART_STORE_LNG},
+        "nearest": distances[0],
+        "all": distances,
+    })

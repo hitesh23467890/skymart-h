@@ -12,6 +12,9 @@ from .views import (
     create_member_payment,
     verify_member_payment,
     get_group_order_status,
+     save_location,
+    get_room_locations,
+    compute_nearest_friend,
         # Product Views
     ProductListCreateAPIView,
     ProductRetrieveAPIView,
@@ -136,5 +139,10 @@ urlpatterns = [
     path("payments/group/member/create/", create_member_payment, name="member-payment-create"),
     path("payments/group/member/verify/", verify_member_payment, name="member-payment-verify"),
     path("payments/group/status/", get_group_order_status, name="group-order-status"),
-
+    # ============================================================
+    # DELIVERY LOCATION
+    # ============================================================
+    path("delivery/save-location/", save_location, name="save-location"),
+    path("delivery/room-locations/", get_room_locations, name="room-locations"),
+    path("delivery/nearest-friend/", compute_nearest_friend, name="nearest-friend"),
 ]

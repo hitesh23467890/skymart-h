@@ -331,28 +331,41 @@ class GroupOrder(models.Model):
 
 
 class GroupOrderPayment(models.Model):
-    """Individual member payment for a group order"""
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('paid', 'Paid'),
-        ('failed', 'Failed'),
-    ]
-    
     group_order = models.ForeignKey(GroupOrder, on_delete=models.CASCADE, related_name='payments')
-    user_id = models.CharField(max_length=100)  # userId from socket
-    username = models.CharField(max_length=100)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True,blank=True)
+    username = models.CharField(max_length=150)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    
+    status = models.CharField(max_length=20, default='pending')
     razorpay_order_id = models.CharField(max_length=100, null=True, blank=True)
     razorpay_payment_id = models.CharField(max_length=100, null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    
     paid_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         db_table = 'group_order_payments'
-        ordering = ['created_at']
-    
+        ordering = ['id']
+
     def __str__(self):
-        return f"{self.username} - ₹{self.amount} ({self.status})"
+        return f"{self.username} - ₹{self.amount} - {self.status}"
+
+
+# ============================================================
+# DELIVERY LOCATION MODEL — for Shop Together map checkout
+# ============================================================
+
+class DeliveryLocation(models.Model):
+    """Stores a user's chosen delivery location for a Shop Together room."""
+    room_id = models.CharField(max_length=20, db_index=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='delivery_locations')
+    username = models.CharField(max_length=150)
+    lat = models.DecimalField(max_digits=10, decimal_places=8)
+    lng = models.DecimalField(max_digits=11, decimal_places=8)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'delivery_locations'
+        unique_together = ['room_id', 'user']
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.room_id} - {self.username} ({self.lat},{self.lng})"

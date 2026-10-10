@@ -1,6 +1,7 @@
 // src/components/ShopTogether.tsx
 import React, { useState, useEffect, useRef } from "react";
 import { useSocket } from "../context/SocketContext";
+import { SplitPaymentPage } from "./SplitPaymentPage";
 import {
   Users,
   MessageCircle,
@@ -12,6 +13,7 @@ import {
   Copy,
   Check,
   User,
+  CreditCard,
 } from "lucide-react";
 
 interface ShopTogetherProps {
@@ -49,6 +51,9 @@ export function ShopTogether({
   const [localMessages, setLocalMessages] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // 🆕 Split payment modal
+  const [showSplitPayment, setShowSplitPayment] = useState(false);
+
   useEffect(() => {
     setLocalMessages(messages);
   }, [messages]);
@@ -81,6 +86,7 @@ export function ShopTogether({
     leaveRoom();
     setRoomId("");
     setLocalMessages([]);
+    setShowSplitPayment(false);
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -102,6 +108,33 @@ export function ShopTogether({
     if (!product) return;
     addToCollabCart(product.id, product);
   };
+
+  // 🆕 Open split payment modal
+  const handleOpenSplitPayment = () => {
+    if (cartItems.length === 0) {
+      alert("Your group cart is empty. Add items first.");
+      return;
+    }
+    if (users.length < 2) {
+      alert("Need at least 2 friends in the room to split the bill.");
+      return;
+    }
+    setShowSplitPayment(true);
+  };
+
+  // 🆕 Handle successful split payment completion
+  const handleSplitComplete = () => {
+    setShowSplitPayment(false);
+    // Optional: leave the room and reset cart after successful order
+    // leaveRoom();
+    // setLocalMessages([]);
+  };
+
+  // Prepare participants for split payment (from socket `users` array)
+  const splitParticipants = users.map((u: any) => ({
+    userId: u.userId,
+    username: u.username,
+  }));
 
   if (!currentRoom) {
     return (
@@ -163,245 +196,291 @@ export function ShopTogether({
   }
 
   return (
-    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden">
-      {/* Header */}
-      <div className="p-4 border-b border-white/10 bg-white/5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Users className="w-5 h-5 text-amber-400" />
-          <span className="font-bold text-sm text-white">
-            Room: {currentRoom}
-          </span>
-          <span className="text-xs text-white/60">{users.length} online</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={copyRoomLink}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-          >
-            {copied ? (
-              <Check className="w-4 h-4 text-green-500" />
-            ) : (
-              <Copy className="w-4 h-4" />
-            )}
-          </button>
-          <button
-            onClick={handleLeaveRoom}
-            className="p-2 hover:bg-rose-500/20 text-rose-400 rounded-lg transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Users */}
-      <div className="px-4 py-2 border-b border-white/10 flex flex-wrap gap-2">
-        {users.map((user: any) => (
-          <div
-            key={user.socketId}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs ${
-              user.userId === userId
-                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                : "bg-white/5 text-white/80 border border-white/5"
-            }`}
-          >
-            <User className="w-3 h-3" />
-            <span>
-              {user.username} {user.userId === userId && "(You)"}
+    <>
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden">
+        {/* Header */}
+        <div className="p-4 border-b border-white/10 bg-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Users className="w-5 h-5 text-amber-400" />
+            <span className="font-bold text-sm text-white">
+              Room: {currentRoom}
             </span>
+            <span className="text-xs text-white/60">{users.length} online</span>
           </div>
-        ))}
-      </div>
-
-      {/* Main Content - Simple Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-        {/* Product */}
-        <div className="bg-white/5 rounded-xl p-4">
-          {currentProduct ? (
-            <>
-              <img
-                src={currentProduct.img}
-                alt={currentProduct.name}
-                className="w-full h-48 object-contain mb-3"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    "https://via.placeholder.com/300x300?text=No+Image";
-                }}
-              />
-              <h4 className="text-lg font-bold text-white">
-                {currentProduct.name}
-              </h4>
-              <p className="text-sm text-white/60">{currentProduct.brand}</p>
-              <p className="text-xl font-semibold text-amber-400">
-                ₹{currentProduct.price}
-              </p>
-              <button
-                onClick={() => handleAddToCart(currentProduct)}
-                className="w-full mt-3 px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:opacity-90"
-              >
-                Add to Group Cart
-              </button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-64 text-center text-white/40">
-              <Eye className="w-12 h-12 mb-3 opacity-50" />
-              <p className="text-sm">No product selected</p>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={copyRoomLink}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              {copied ? (
+                <Check className="w-4 h-4 text-green-500" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
+            </button>
+            <button
+              onClick={handleLeaveRoom}
+              className="p-2 hover:bg-rose-500/20 text-rose-400 rounded-lg transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Chat + Cart */}
-        <div className="bg-white/5 rounded-xl flex flex-col h-[400px]">
-          <div className="flex border-b border-white/10">
-            <button
-              onClick={() => {
-                setShowChat(true);
-                setShowCart(false);
-              }}
-              className={`flex-1 py-2 text-xs font-semibold ${
-                showChat
-                  ? "border-b-2 border-amber-500 text-amber-400"
-                  : "text-white/40"
+        {/* Users */}
+        <div className="px-4 py-2 border-b border-white/10 flex flex-wrap gap-2">
+          {users.map((user: any) => (
+            <div
+              key={user.socketId}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs ${
+                user.userId === userId
+                  ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                  : "bg-white/5 text-white/80 border border-white/5"
               }`}
             >
-              <MessageCircle className="w-4 h-4 inline mr-1" /> Chat (
-              {localMessages.length})
-            </button>
-            <button
-              onClick={() => {
-                setShowChat(false);
-                setShowCart(true);
-              }}
-              className={`flex-1 py-2 text-xs font-semibold ${
-                showCart
-                  ? "border-b-2 border-amber-500 text-amber-400"
-                  : "text-white/40"
-              }`}
-            >
-              <ShoppingCart className="w-4 h-4 inline mr-1" /> Cart (
-              {cartItems.length})
-            </button>
+              <User className="w-3 h-3" />
+              <span>
+                {user.username} {user.userId === userId && "(You)"}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+          {/* Product */}
+          <div className="bg-white/5 rounded-xl p-4">
+            {currentProduct ? (
+              <>
+                <img
+                  src={currentProduct.img}
+                  alt={currentProduct.name}
+                  className="w-full h-48 object-contain mb-3"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src =
+                      "https://via.placeholder.com/300x300?text=No+Image";
+                  }}
+                />
+                <h4 className="text-lg font-bold text-white">
+                  {currentProduct.name}
+                </h4>
+                <p className="text-sm text-white/60">{currentProduct.brand}</p>
+                <p className="text-xl font-semibold text-amber-400">
+                  ₹{currentProduct.price}
+                </p>
+                <button
+                  onClick={() => handleAddToCart(currentProduct)}
+                  className="w-full mt-3 px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:opacity-90"
+                >
+                  Add to Group Cart
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-64 text-center text-white/40">
+                <Eye className="w-12 h-12 mb-3 opacity-50" />
+                <p className="text-sm">No product selected</p>
+              </div>
+            )}
           </div>
 
-          {showChat && (
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                {localMessages.map((msg, idx) => {
-                  const isCurrentUser = msg.userId === userId;
-                  return (
-                    <div
-                      key={idx}
-                      className={`flex flex-col ${isCurrentUser ? "items-end" : "items-start"}`}
-                    >
-                      {!isCurrentUser && (
-                        <span className="text-[10px] text-white/50">
-                          {msg.username}
-                        </span>
-                      )}
+          {/* Chat + Cart */}
+          <div className="bg-white/5 rounded-xl flex flex-col h-[400px]">
+            <div className="flex border-b border-white/10">
+              <button
+                onClick={() => {
+                  setShowChat(true);
+                  setShowCart(false);
+                }}
+                className={`flex-1 py-2 text-xs font-semibold ${
+                  showChat
+                    ? "border-b-2 border-amber-500 text-amber-400"
+                    : "text-white/40"
+                }`}
+              >
+                <MessageCircle className="w-4 h-4 inline mr-1" /> Chat (
+                {localMessages.length})
+              </button>
+              <button
+                onClick={() => {
+                  setShowChat(false);
+                  setShowCart(true);
+                }}
+                className={`flex-1 py-2 text-xs font-semibold ${
+                  showCart
+                    ? "border-b-2 border-amber-500 text-amber-400"
+                    : "text-white/40"
+                }`}
+              >
+                <ShoppingCart className="w-4 h-4 inline mr-1" /> Cart (
+                {cartItems.length})
+              </button>
+            </div>
+
+            {showChat && (
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                  {localMessages.map((msg, idx) => {
+                    const isCurrentUser = msg.userId === userId;
+                    return (
                       <div
-                        className={`max-w-[80%] px-3 py-1.5 rounded-xl text-sm ${
-                          isCurrentUser
-                            ? "bg-amber-500 text-white rounded-tr-none"
-                            : "bg-white/10 text-white rounded-tl-none"
-                        }`}
+                        key={idx}
+                        className={`flex flex-col ${isCurrentUser ? "items-end" : "items-start"}`}
                       >
-                        {msg.message}
+                        {!isCurrentUser && (
+                          <span className="text-[10px] text-white/50">
+                            {msg.username}
+                          </span>
+                        )}
+                        <div
+                          className={`max-w-[80%] px-3 py-1.5 rounded-xl text-sm ${
+                            isCurrentUser
+                              ? "bg-amber-500 text-white rounded-tr-none"
+                              : "bg-white/10 text-white rounded-tl-none"
+                          }`}
+                        >
+                          {msg.message}
+                        </div>
+                        <span className="text-[8px] text-white/30">
+                          {msg.timestamp
+                            ? new Date(msg.timestamp).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "now"}
+                        </span>
                       </div>
-                      <span className="text-[8px] text-white/30">
-                        {msg.timestamp
-                          ? new Date(msg.timestamp).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : "now"}
-                      </span>
+                    );
+                  })}
+                  <div ref={messagesEndRef} />
+                  {localMessages.length === 0 && (
+                    <div className="text-center text-white/30 text-sm py-8">
+                      <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                      <p>No messages yet</p>
                     </div>
-                  );
-                })}
-                <div ref={messagesEndRef} />
-                {localMessages.length === 0 && (
-                  <div className="text-center text-white/30 text-sm py-8">
-                    <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                    <p>No messages yet</p>
+                  )}
+                </div>
+                <form
+                  onSubmit={handleSendMessage}
+                  className="p-3 border-t border-white/10 flex gap-2 bg-white/5"
+                >
+                  <input
+                    type="text"
+                    placeholder="Type a message..."
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    className="flex-1 px-4 py-2 bg-white/10 border border-white/10 rounded-full text-sm text-white outline-none focus:border-amber-400 placeholder-white/30"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!messageInput.trim()}
+                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full hover:opacity-90 disabled:opacity-50"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {showCart && (
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex-1 overflow-y-auto p-3">
+                  {cartItems.length === 0 ? (
+                    <div className="text-center text-white/40 text-sm py-8">
+                      <ShoppingCart className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>Group cart is empty</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {cartItems.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-2 p-2 bg-white/5 rounded-lg"
+                        >
+                          <img
+                            src={item.img}
+                            alt={item.name}
+                            className="w-10 h-10 object-contain"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-white truncate">
+                              {item.name}
+                            </p>
+                            <p className="text-[10px] text-white/50">
+                              ₹{item.price} x {item.quantity}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => removeFromCollabCart(item.id)}
+                            className="p-1 bg-rose-500/20 text-rose-400 rounded"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                      <div className="border-t border-white/10 pt-2 mt-2">
+                        <div className="flex justify-between text-sm font-semibold text-white">
+                          <span>Total</span>
+                          <span className="text-amber-400">
+                            ₹
+                            {cartItems.reduce(
+                              (sum, item) =>
+                                sum + item.price * (item.quantity || 1),
+                              0,
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 🆕 Split & Checkout button */}
+                {cartItems.length > 0 && users.length >= 2 && (
+                  <div className="p-3 border-t border-white/10 bg-white/5">
+                    <button
+                      onClick={() => {
+                        // Save cart items for the checkout flow
+                        localStorage.setItem(
+                          "groupCartItems",
+                          JSON.stringify(cartItems),
+                        );
+                        // Navigate to location page
+                        window.location.href = `/delivery-location?room=${currentRoom}`;
+                      }}
+                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-amber-500 text-white font-bold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 text-sm"
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      Checkout Group Cart ({users.length} friends)
+                    </button>
+                  </div>
+                )}
+
+                {cartItems.length > 0 && users.length < 2 && (
+                  <div className="p-3 border-t border-white/10 bg-white/5">
+                    <p className="text-[10px] text-white/40 text-center italic">
+                      Invite at least one more friend to split the bill
+                    </p>
                   </div>
                 )}
               </div>
-              <form
-                onSubmit={handleSendMessage}
-                className="p-3 border-t border-white/10 flex gap-2 bg-white/5"
-              >
-                <input
-                  type="text"
-                  placeholder="Type a message..."
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
-                  className="flex-1 px-4 py-2 bg-white/10 border border-white/10 rounded-full text-sm text-white outline-none focus:border-amber-400 placeholder-white/30"
-                />
-                <button
-                  type="submit"
-                  disabled={!messageInput.trim()}
-                  className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full hover:opacity-90 disabled:opacity-50"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </form>
-            </div>
-          )}
-
-          {showCart && (
-            <div className="flex-1 overflow-y-auto p-3">
-              {cartItems.length === 0 ? (
-                <div className="text-center text-white/40 text-sm py-8">
-                  <ShoppingCart className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>Group cart is empty</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {cartItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center gap-2 p-2 bg-white/5 rounded-lg"
-                    >
-                      <img
-                        src={item.img}
-                        alt={item.name}
-                        className="w-10 h-10 object-contain"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-white truncate">
-                          {item.name}
-                        </p>
-                        <p className="text-[10px] text-white/50">
-                          ₹{item.price} x {item.quantity}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => removeFromCollabCart(item.id)}
-                        className="p-1 bg-rose-500/20 text-rose-400 rounded"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                  <div className="border-t border-white/10 pt-2 mt-2">
-                    <div className="flex justify-between text-sm font-semibold text-white">
-                      <span>Total</span>
-                      <span className="text-amber-400">
-                        ₹
-                        {cartItems.reduce(
-                          (sum, item) =>
-                            sum + item.price * (item.quantity || 1),
-                          0,
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* 🆕 Split Payment Modal */}
+      {showSplitPayment && currentRoom && (
+        <SplitPaymentPage
+          roomId={currentRoom}
+          cartItems={cartItems}
+          currentUserId={userId}
+          currentUsername={username}
+          participants={splitParticipants}
+          onClose={() => setShowSplitPayment(false)}
+          onComplete={handleSplitComplete}
+        />
+      )}
+    </>
   );
 }

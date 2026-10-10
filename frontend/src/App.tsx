@@ -48,7 +48,10 @@ import { SkyCoinsDashboard } from "./pages/SkyCoinsDashboard";
 import { useSkyCoins } from "./hooks/useSkyCoins";
 import { SplashScreen } from "./components/SplashScreen";
 import { RazorpayPayment } from "./components/RazorpayPayment";
-
+import { DeliveryLocationPage } from "./pages/DeliveryLocationPage";
+import { PaymentOptionsPage } from "./pages/PaymentOptionsPage";
+import { SplitPaymentPage } from "./components/SplitPaymentPage";
+import { DeliveryAssignmentPage } from "./pages/DeliveryAssignmentPage";
 // ============================================================
 // API CONFIGURATION
 // ============================================================
@@ -1967,6 +1970,34 @@ export default function App() {
   // ============================================================
   // RENDER PAGES - ALL PAGES IN ONE COMPLETE RETURN
   // ============================================================
+  // ============================================================
+  // CHECKOUT FLOW PAGES — full-screen standalone, no store layout
+  // ============================================================
+  if (location.pathname === "/delivery-location") {
+    return (
+      <>
+        {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+        <DeliveryLocationPage />
+      </>
+    );
+  }
+  if (location.pathname === "/payment-options") {
+    return (
+      <>
+        {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+        <PaymentOptionsPage />
+      </>
+    );
+  }
+  if (location.pathname === "/delivery-assignment") {
+    return (
+      <>
+        {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+        <DeliveryAssignmentPage />
+      </>
+    );
+  }
+
   return (
     <>
       {/* Splash Screen */}
