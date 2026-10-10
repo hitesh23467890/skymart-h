@@ -27,10 +27,11 @@ import json
 import hmac
 import hashlib
 
-# Initialize Razorpay client
-razorpay_client = razorpay.Client(
-    auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-)
+def get_razorpay_client():
+    """Create a Razorpay client lazily using current settings."""
+    return razorpay.Client(
+        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+    )
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -49,8 +50,7 @@ def create_razorpay_order(request):
             'receipt': receipt,
             'payment_capture': 1,  # Auto capture
         }
-        
-        order = razorpay_client.order.create(data=order_data)
+        order = get_razorpay_client().order.create(data=order_data)
         
         return JsonResponse({
             'success': True,
@@ -83,8 +83,7 @@ def verify_razorpay_payment(request):
         }
         
         # Verify using razorpay client
-        razorpay_client.utility.verify_payment_signature(params_dict)
-        
+        get_razorpay_client().utility.verify_payment_signature(params_dict)
         # Payment verified - update your database here
         # Mark order as paid, update purchase history, etc.
         
