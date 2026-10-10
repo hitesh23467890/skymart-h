@@ -8,8 +8,11 @@ from .views import (
     logout_view,
     get_current_user_view,
     get_csrf_token_view,
-    
-    # Product Views
+    create_group_order,
+    create_member_payment,
+    verify_member_payment,
+    get_group_order_status,
+        # Product Views
     ProductListCreateAPIView,
     ProductRetrieveAPIView,
     
@@ -129,4 +132,9 @@ urlpatterns = [
     path("skycoins/reset-streak/", reset_streak, name="skycoins-reset-streak"),
     path("skycoins/clear-data/", clear_all_data, name="skycoins-clear-data"),
     path("test-skycoins/", test_skycoins_data, name="test-skycoins"),
+     path("payments/group/create/", create_group_order, name="group-order-create"),
+    path("payments/group/member/create/", create_member_payment, name="member-payment-create"),
+    path("payments/group/member/verify/", verify_member_payment, name="member-payment-verify"),
+    path("payments/group/status/", get_group_order_status, name="group-order-status"),
+
 ]

@@ -292,3 +292,67 @@ class PurchaseHistory(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.product_name} - {self.purchase_date.date()}"
+
+
+    # ============================================================
+# SPLIT PAYMENT MODELS
+# ============================================================
+
+class GroupOrder(models.Model):
+    """Represents a group order for Shop Together"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('partial', 'Partially Paid'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    room_id = models.CharField(max_length=20, unique=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    split_type = models.CharField(max_length=20, default='equal')  # 'equal' or 'custom'
+    
+    # Delivery
+    delivery_lat = models.FloatField(null=True, blank=True)
+    delivery_lng = models.FloatField(null=True, blank=True)
+    delivery_address = models.TextField(null=True, blank=True)
+    nearest_member_id = models.CharField(max_length=100, null=True, blank=True)
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    cart_items = models.JSONField(default=list)  # Snapshot of cart
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'group_orders'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Group Order {self.room_id} - ₹{self.total_amount}"
+
+
+class GroupOrderPayment(models.Model):
+    """Individual member payment for a group order"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+    ]
+    
+    group_order = models.ForeignKey(GroupOrder, on_delete=models.CASCADE, related_name='payments')
+    user_id = models.CharField(max_length=100)  # userId from socket
+    username = models.CharField(max_length=100)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    razorpay_order_id = models.CharField(max_length=100, null=True, blank=True)
+    razorpay_payment_id = models.CharField(max_length=100, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    paid_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'group_order_payments'
+        ordering = ['created_at']
+    
+    def __str__(self):
+        return f"{self.username} - ₹{self.amount} ({self.status})"

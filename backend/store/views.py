@@ -1538,3 +1538,258 @@ def test_skycoins_data(request):
             'success': False,
             'error': str(e)
         }, status=500)
+
+    # ============================================================
+# SPLIT PAYMENT VIEWS
+# ============================================================
+
+from .models import GroupOrder, GroupOrderPayment
+import json
+import uuid
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def create_group_order(request):
+    """Create a group order for Shop Together"""
+    try:
+        data = json.loads(request.body)
+        
+        room_id = data.get('room_id')
+        cart_items = data.get('cart_items', [])
+        total_amount = data.get('total_amount', 0)
+        split_type = data.get('split_type', 'equal')
+        participants = data.get('participants', [])
+        delivery_location = data.get('delivery_location', {})
+        
+        if not room_id or not cart_items or not participants:
+            return JsonResponse({
+                'success': False,
+                'error': 'Missing required fields'
+            }, status=400)
+        
+        # Create or update group order
+        group_order, created = GroupOrder.objects.update_or_create(
+            room_id=room_id,
+            defaults={
+                'total_amount': total_amount,
+                'split_type': split_type,
+                'cart_items': cart_items,
+                'delivery_lat': delivery_location.get('lat'),
+                'delivery_lng': delivery_location.get('lng'),
+                'delivery_address': delivery_location.get('address'),
+                'status': 'pending',
+            }
+        )
+        
+        # Delete old payments if updating
+        if not created:
+            group_order.payments.all().delete()
+        
+        # Calculate per-person amount
+        if split_type == 'equal':
+            per_person = float(total_amount) / len(participants)
+        else:
+            per_person = 0  # Will be set per participant
+        
+        # Create payment records for each participant
+        payments = []
+        for p in participants:
+            amount = per_person if split_type == 'equal' else p.get('amount', 0)
+            
+            payment = GroupOrderPayment.objects.create(
+                group_order=group_order,
+                user_id=p.get('userId'),
+                username=p.get('username'),
+                amount=amount,
+                status='pending',
+            )
+            payments.append(payment)
+        
+        return JsonResponse({
+            'success': True,
+            'group_order_id': group_order.id,
+            'room_id': room_id,
+            'total_amount': float(group_order.total_amount),
+            'split_type': split_type,
+            'payments': [
+                {
+                    'id': p.id,
+                    'user_id': p.user_id,
+                    'username': p.username,
+                    'amount': float(p.amount),
+                    'status': p.status,
+                }
+                for p in payments
+            ],
+        })
+    
+    except Exception as e:
+        print(f"❌ Error creating group order: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def create_member_payment(request):
+    """Create Razorpay order for individual member"""
+    try:
+        data = json.loads(request.body)
+        
+        group_order_id = data.get('group_order_id')
+        user_id = data.get('user_id')
+        amount = data.get('amount')
+        
+        # Get the payment record
+        try:
+            payment = GroupOrderPayment.objects.get(
+                group_order_id=group_order_id,
+                user_id=user_id
+            )
+        except GroupOrderPayment.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Payment record not found'
+            }, status=404)
+        
+        # Create Razorpay order
+        order_data = {
+            'amount': int(float(amount) * 100),
+            'currency': 'INR',
+            'receipt': f'split_{uuid.uuid4().hex[:8]}',
+            'payment_capture': 1,
+        }
+        
+        razorpay_order = razorpay_client.order.create(data=order_data)
+        
+        # Save Razorpay order ID
+        payment.razorpay_order_id = razorpay_order['id']
+        payment.save()
+        
+        return JsonResponse({
+            'success': True,
+            'order_id': razorpay_order['id'],
+            'amount': razorpay_order['amount'],
+            'currency': razorpay_order['currency'],
+            'key': settings.RAZORPAY_KEY_ID,
+            'payment_id': payment.id,
+        })
+    
+    except Exception as e:
+        print(f"❌ Error creating member payment: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def verify_member_payment(request):
+    """Verify payment for a specific member"""
+    try:
+        data = json.loads(request.body)
+        
+        payment_id = data.get('payment_id')
+        razorpay_order_id = data.get('razorpay_order_id')
+        razorpay_payment_id = data.get('razorpay_payment_id')
+        razorpay_signature = data.get('razorpay_signature')
+        
+        # Verify signature
+        params_dict = {
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': razorpay_payment_id,
+            'razorpay_signature': razorpay_signature,
+        }
+        
+        razorpay_client.utility.verify_payment_signature(params_dict)
+        
+        # Update payment record
+        payment = GroupOrderPayment.objects.get(id=payment_id)
+        payment.razorpay_payment_id = razorpay_payment_id
+        payment.status = 'paid'
+        payment.paid_at = timezone.now()
+        payment.save()
+        
+        # Check if all payments are done
+        group_order = payment.group_order
+        all_payments = group_order.payments.all()
+        all_paid = all_p.status == 'paid' for p in all_payments)
+        
+        if all_paid:
+            group_order.status = 'completed'
+            group_order.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Payment verified successfully',
+            'payment_status': payment.status,
+            'order_status': group_order.status,
+            'all_paid': all_paid,
+        })
+    
+    except Exception as e:
+        print(f"❌ Error verifying member payment: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_group_order_status(request):
+    """Get current status of a group order"""
+    try:
+        room_id = request.GET.get('room_id')
+        
+        if not room_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'room_id required'
+            }, status=400)
+        
+        try:
+            group_order = GroupOrder.objects.get(room_id=room_id)
+        except GroupOrder.DoesNotExist:
+            return JsonResponse({
+                'success': True,
+                'exists': False
+            })
+        
+        payments = group_order.payments.all()
+        
+        return JsonResponse({
+            'success': True,
+            'exists': True,
+            'group_order': {
+                'id': group_order.id,
+                'room_id': group_order.room_id,
+                'total_amount': float(group_order.total_amount),
+                'split_type': group_order.split_type,
+                'status': group_order.status,
+                'nearest_member_id': group_order.nearest_member_id,
+                'delivery_address': group_order.delivery_address,
+            },
+            'payments': [
+                {
+                    'id': p.id,
+                    'user_id': p.user_id,
+                    'username': p.username,
+                    'amount': float(p.amount),
+                    'status': p.status,
+                    'paid_at': p.paid_at.isoformat() if p.paid_at else None,
+                }
+                for p in payments
+            ],
+        })
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
