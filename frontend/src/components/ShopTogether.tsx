@@ -1,6 +1,7 @@
 // src/components/ShopTogether.tsx
 import React, { useState, useEffect, useRef } from "react";
 import { useSocket } from "../context/SocketContext";
+import { useNavigate } from "react-router-dom";
 import { SplitPaymentPage } from "./SplitPaymentPage";
 import {
   Users,
@@ -42,7 +43,7 @@ export function ShopTogether({
     messages,
     cartItems,
   } = useSocket();
-
+  const navigate = useNavigate();
   const [roomId, setRoomId] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [showChat, setShowChat] = useState(true);
@@ -128,6 +129,34 @@ export function ShopTogether({
     // Optional: leave the room and reset cart after successful order
     // leaveRoom();
     // setLocalMessages([]);
+  };
+
+  // 🆕 Checkout handler — saves cart + participants, then navigates
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      alert("Your group cart is empty. Add items first.");
+      return;
+    }
+    if (!currentRoom) {
+      alert("You must be in a room to checkout.");
+      return;
+    }
+
+    // Save everything the next pages need
+    localStorage.setItem("groupCartItems", JSON.stringify(cartItems));
+    localStorage.setItem("groupRoomId", currentRoom);
+    localStorage.setItem(
+      "groupParticipants",
+      JSON.stringify(
+        users.map((u: any) => ({
+          userId: u.userId,
+          username: u.username,
+        })),
+      ),
+    );
+
+    // Navigate using React Router (respects HashRouter)
+    navigate(`/delivery-location?room=${currentRoom}`);
   };
 
   // Prepare participants for split payment (from socket `users` array)
@@ -435,19 +464,11 @@ export function ShopTogether({
                   )}
                 </div>
 
-                {/* 🆕 Split & Checkout button */}
+                {/* 🆕 Checkout Group Cart button — now uses navigate() */}
                 {cartItems.length > 0 && users.length >= 2 && (
                   <div className="p-3 border-t border-white/10 bg-white/5">
                     <button
-                      onClick={() => {
-                        // Save cart items for the checkout flow
-                        localStorage.setItem(
-                          "groupCartItems",
-                          JSON.stringify(cartItems),
-                        );
-                        // Navigate to location page
-                        window.location.href = `/delivery-location?room=${currentRoom}`;
-                      }}
+                      onClick={handleCheckout}
                       className="w-full py-3 bg-gradient-to-r from-purple-600 to-amber-500 text-white font-bold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 text-sm"
                     >
                       <CreditCard className="w-4 h-4" />
