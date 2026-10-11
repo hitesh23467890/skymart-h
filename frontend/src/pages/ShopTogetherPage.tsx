@@ -674,7 +674,44 @@ export function ShopTogetherPage({
                           )}
                         </span>
                       </div>
-                      <button className="w-full mt-3 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg shadow-amber-500/25">
+                      <button
+                        onClick={() => {
+                          console.log("🛒 Checkout clicked", {
+                            cartLength: cartItems.length,
+                            room: currentRoom,
+                            users: users.length,
+                          });
+
+                          if (cartItems.length === 0) {
+                            alert("Your group cart is empty.");
+                            return;
+                          }
+                          if (!currentRoom) {
+                            alert("You must be in a room to checkout.");
+                            return;
+                          }
+
+                          // Save cart + participants for the next page
+                          localStorage.setItem(
+                            "groupCartItems",
+                            JSON.stringify(cartItems),
+                          );
+                          localStorage.setItem("groupRoomId", currentRoom);
+                          localStorage.setItem(
+                            "groupParticipants",
+                            JSON.stringify(
+                              users.map((u: any) => ({
+                                userId: u.userId,
+                                username: u.username,
+                              })),
+                            ),
+                          );
+
+                          // Navigate using hash — guaranteed to work with HashRouter
+                          window.location.hash = `#/delivery-location?room=${currentRoom}`;
+                        }}
+                        className="w-full mt-3 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg shadow-amber-500/25"
+                      >
                         Checkout Group Cart
                       </button>
                     </div>
