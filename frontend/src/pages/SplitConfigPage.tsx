@@ -116,7 +116,7 @@ export function SplitConfigPage() {
       amount: (cartTotal * splits[i]) / 100,
     }));
     localStorage.setItem("splitPlan", JSON.stringify(plan));
-
+    localStorage.setItem("groupRoomId", roomId);
     // Navigate to the split payment page (existing flow)
     navigate(`/split-payment?room=${roomId}`);
   };

@@ -26,12 +26,21 @@ export function FullPaymentPage() {
       console.error(e);
     }
   }, []);
-
   const handleSuccess = (paymentId: string) => {
-    // Save payment info and navigate to delivery assignment
     localStorage.setItem("paymentId", paymentId);
     localStorage.setItem("paymentMode", "full");
-    navigate(`/delivery-assignment?room=${roomId}`);
+
+    const finalRoom = roomId || localStorage.getItem("groupRoomId") || "";
+    if (!finalRoom) {
+      alert("Room ID missing — cannot continue");
+      return;
+    }
+
+    console.log(
+      "💳 Full payment success, navigating to assignment:",
+      finalRoom,
+    );
+    window.location.hash = `#/delivery-assignment?room=${finalRoom}`;
   };
 
   return (

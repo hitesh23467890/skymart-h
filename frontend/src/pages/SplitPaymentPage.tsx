@@ -33,30 +33,42 @@ export function SplitPaymentPage() {
   const [activePay, setActivePay] = useState<SplitPlanItem | null>(null);
 
   const myUserId = String(localStorage.getItem("userId") || "");
-
   useEffect(() => {
     try {
       const raw = localStorage.getItem("splitPlan");
       if (raw) setPlan(JSON.parse(raw));
+      // Persist room ID as fallback
+      if (roomId) localStorage.setItem("groupRoomId", roomId);
     } catch (e) {
       console.error(e);
     }
-  }, []);
-
+  }, [roomId]);
   const handleMemberSuccess = (item: SplitPlanItem, paymentId: string) => {
     setPaidIds((prev) => new Set(prev).add(item.userId));
     setActivePay(null);
 
-    // If everyone's paid, go to delivery assignment
     const updated = new Set(paidIds).add(item.userId);
     if (updated.size === plan.length) {
       localStorage.setItem("paymentMode", "split");
+
+      // Fallback: room might be empty in URL — grab from localStorage
+      const finalRoom = roomId || localStorage.getItem("groupRoomId") || "";
+      if (!finalRoom) {
+        alert("Room ID missing — cannot continue");
+        return;
+      }
+
+      console.log(
+        "🎉 All paid, navigating to delivery assignment for room:",
+        finalRoom,
+      );
+
       setTimeout(() => {
-        navigate(`/delivery-assignment?room=${roomId}`);
-      }, 800);
+        // Bulletproof: works with HashRouter regardless of useNavigate context
+        window.location.hash = `#/delivery-assignment?room=${finalRoom}`;
+      }, 1000);
     }
   };
-
   const totalAmount = plan.reduce((s, p) => s + p.amount, 0);
   const paidAmount = plan
     .filter((p) => paidIds.has(p.userId))
