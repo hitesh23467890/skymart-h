@@ -30,6 +30,7 @@ interface Location {
   username: string;
   lat: number;
   lng: number;
+  place_name?: string; // ← new: human-readable location
 }
 
 /* ---------------- Custom marker icons ---------------- */
@@ -55,7 +56,7 @@ const grayIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-/* -------- Auto-fit bounds so every pin is visible -------- */
+/* ---------------- Auto-fit bounds ---------------- */
 function FitBounds({ points }: { points: [number, number][] }) {
   const map = useMap();
   useEffect(() => {
@@ -67,6 +68,44 @@ function FitBounds({ points }: { points: [number, number][] }) {
   return null;
 }
 
+/* ---------------- Reverse geocode helper ---------------- */
+const placeCache = new Map<string, string>();
+
+async function reverseGeocode(lat: number, lng: number): Promise<string> {
+  const key = `${lat.toFixed(3)},${lng.toFixed(3)}`;
+  if (placeCache.has(key)) return placeCache.get(key)!;
+
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1`;
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) return "Unknown location";
+    const data = await res.json();
+    const a = data.address || {};
+
+    // Pick the most meaningful parts, in priority order
+    const suburb =
+      a.suburb ||
+      a.neighbourhood ||
+      a.village ||
+      a.hamlet ||
+      a.quarter ||
+      a.city_district;
+    const city = a.city || a.town || a.county;
+    const state = a.state;
+
+    const parts = [suburb, city, state].filter(Boolean);
+    const label =
+      parts.slice(0, 2).join(", ") || data.display_name || "Unknown location";
+
+    placeCache.set(key, label);
+    return label;
+  } catch {
+    return "Unknown location";
+  }
+}
+
 export function DeliveryLocationPage() {
   const [params] = useSearchParams();
   const roomId = params.get("room") || "";
@@ -76,6 +115,7 @@ export function DeliveryLocationPage() {
   const [sharing, setSharing] = useState(false);
   const [locations, setLocations] = useState<Location[]>([]);
   const [store, setStore] = useState({ lat: 12.9716, lng: 77.5946 });
+  const [storeName, setStoreName] = useState("SKYMART Store");
   const [myLocation, setMyLocation] = useState<Location | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,6 +123,7 @@ export function DeliveryLocationPage() {
   const myUserId = parseInt(localStorage.getItem("userId") || "0");
   const myUsername = localStorage.getItem("username") || "";
 
+  /* ---------- Fetch room locations + enrich with place names ---------- */
   const fetchLocations = async () => {
     try {
       const res = await fetch(
@@ -91,10 +132,17 @@ export function DeliveryLocationPage() {
       const data = await res.json();
       if (data.success) {
         setStore(data.store);
-        setLocations(data.locations);
-        const mine = data.locations.find(
-          (l: Location) => l.user_id === myUserId,
+
+        // Attach human-readable place names to each location
+        const enriched: Location[] = await Promise.all(
+          data.locations.map(async (loc: Location) => ({
+            ...loc,
+            place_name: await reverseGeocode(loc.lat, loc.lng),
+          })),
         );
+
+        setLocations(enriched);
+        const mine = enriched.find((l) => l.user_id === myUserId);
         if (mine) setMyLocation(mine);
       }
     } catch (e) {
@@ -105,11 +153,16 @@ export function DeliveryLocationPage() {
   };
 
   useEffect(() => {
+    // Resolve store's display name once
+    reverseGeocode(store.lat, store.lng).then(setStoreName);
+
     fetchLocations();
     const interval = setInterval(fetchLocations, 5000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId]);
 
+  /* ---------- Share my location ---------- */
   const handleShareLocation = () => {
     if (!navigator.geolocation) {
       setError("Your browser doesn't support geolocation");
@@ -122,6 +175,7 @@ export function DeliveryLocationPage() {
       async (position) => {
         const { latitude, longitude } = position.coords;
         try {
+          // Save to backend
           const res = await fetch(`${API_BASE}/api/delivery/save-location/`, {
             method: "POST",
             headers: {
@@ -136,11 +190,14 @@ export function DeliveryLocationPage() {
           });
           const data = await res.json();
           if (data.success) {
+            // Show immediate feedback with place name
+            const label = await reverseGeocode(latitude, longitude);
             setMyLocation({
               user_id: myUserId,
               username: myUsername,
               lat: latitude,
               lng: longitude,
+              place_name: label,
             });
             fetchLocations();
           } else {
@@ -201,7 +258,7 @@ export function DeliveryLocationPage() {
           </p>
         </div>
 
-        {/* Two-column layout: controls LEFT, map RIGHT */}
+        {/* Two-column layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8 items-start">
           {/* LEFT: controls + friends */}
           <div className="space-y-6">
@@ -216,7 +273,10 @@ export function DeliveryLocationPage() {
 
               {myLocation ? (
                 <>
-                  <p className="text-white/60 text-xs font-mono mb-4">
+                  <p className="text-white text-sm font-medium mb-1 truncate">
+                    {myLocation.place_name || "Resolving…"}
+                  </p>
+                  <p className="text-white/40 text-[11px] font-mono mb-4">
                     {myLocation.lat.toFixed(4)}, {myLocation.lng.toFixed(4)}
                   </p>
                   <button
@@ -298,7 +358,7 @@ export function DeliveryLocationPage() {
                         }`}
                       >
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${
+                          className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
                             isMe
                               ? "bg-gradient-to-br from-amber-300 to-amber-500 text-black"
                               : "bg-gradient-to-br from-zinc-700 to-zinc-900 text-white border border-white/10"
@@ -315,11 +375,11 @@ export function DeliveryLocationPage() {
                               </span>
                             )}
                           </p>
-                          <p className="text-[10px] font-mono text-white/40">
-                            {loc.lat.toFixed(3)}, {loc.lng.toFixed(3)}
+                          <p className="text-[11px] text-white/60 truncate">
+                            {loc.place_name || "Locating…"}
                           </p>
                         </div>
-                        <Check className="w-4 h-4 text-emerald-400" />
+                        <Check className="w-4 h-4 text-emerald-400 shrink-0" />
                       </div>
                     );
                   })}
@@ -363,7 +423,7 @@ export function DeliveryLocationPage() {
               </span>
             </div>
 
-            {/* Map wrapper — tuned height */}
+            {/* Map wrapper */}
             <div style={{ height: "520px" }} className="w-full bg-zinc-900">
               <style>{`
                 .leaflet-container { filter: saturate(0.85) contrast(1.05); }
@@ -383,19 +443,16 @@ export function DeliveryLocationPage() {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
 
-                  {/* Auto-fit all pins */}
                   <FitBounds points={allPoints} />
 
-                  {/* Store marker — gold */}
                   <Marker position={[store.lat, store.lng]} icon={goldIcon}>
                     <Popup>
-                      <strong>🏪 SKYMART Store</strong>
+                      <strong>🏪 {storeName}</strong>
                       <br />
                       Fulfillment Center
                     </Popup>
                   </Marker>
 
-                  {/* Friends — grey */}
                   {locations.map((loc) => (
                     <Marker
                       key={loc.user_id}
@@ -405,7 +462,13 @@ export function DeliveryLocationPage() {
                       <Popup>
                         <strong>{loc.username}</strong>
                         <br />
-                        {loc.user_id === myUserId && "(You)"}
+                        {loc.place_name || "Locating…"}
+                        {loc.user_id === myUserId && (
+                          <>
+                            <br />
+                            <em>(You)</em>
+                          </>
+                        )}
                       </Popup>
                     </Marker>
                   ))}
