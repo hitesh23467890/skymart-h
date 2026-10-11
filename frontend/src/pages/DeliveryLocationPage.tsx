@@ -1,6 +1,6 @@
 // frontend/src/pages/DeliveryLocationPage.tsx
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   MapPin,
@@ -30,6 +30,41 @@ interface Location {
   username: string;
   lat: number;
   lng: number;
+}
+
+/* ---------------- Custom marker icons ---------------- */
+const goldIcon = new L.Icon({
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+const grayIcon = new L.Icon({
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+/* -------- Auto-fit bounds so every pin is visible -------- */
+function FitBounds({ points }: { points: [number, number][] }) {
+  const map = useMap();
+  useEffect(() => {
+    if (points.length > 0) {
+      const bounds = L.latLngBounds(points.map((p) => L.latLng(p[0], p[1])));
+      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13 });
+    }
+  }, [points.length, map]);
+  return null;
 }
 
 export function DeliveryLocationPage() {
@@ -129,6 +164,11 @@ export function DeliveryLocationPage() {
     navigate(`/payment-options?room=${roomId}`);
   };
 
+  const allPoints: [number, number][] = [
+    [store.lat, store.lng],
+    ...locations.map((l) => [l.lat, l.lng] as [number, number]),
+  ];
+
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Ambient gold glow */}
@@ -162,7 +202,7 @@ export function DeliveryLocationPage() {
         </div>
 
         {/* Two-column layout: controls LEFT, map RIGHT */}
-        <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8 items-start">
           {/* LEFT: controls + friends */}
           <div className="space-y-6">
             {/* Share button card */}
@@ -312,15 +352,25 @@ export function DeliveryLocationPage() {
 
           {/* RIGHT: Map */}
           <div className="relative rounded-2xl overflow-hidden border border-amber-400/20 shadow-[0_0_60px_-20px_rgba(245,158,11,0.4)]">
-            {/* Map frame — gold hairline */}
-            <div className="absolute inset-0 pointer-events-none z-20 rounded-2xl ring-1 ring-amber-400/30" />
+            {/* Gold hairline frame + inner vignette */}
+            <div className="absolute inset-0 pointer-events-none z-20 rounded-2xl ring-1 ring-amber-400/40 shadow-[inset_0_0_60px_rgba(0,0,0,0.55)]" />
+
+            {/* Live Map badge */}
             <div className="absolute top-4 left-4 z-20 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-amber-400/30 flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-[10px] uppercase tracking-widest text-amber-200 font-bold">
                 Live Map
               </span>
             </div>
-            <div style={{ height: "640px" }} className="w-full bg-zinc-900">
+
+            {/* Map wrapper — tuned height */}
+            <div style={{ height: "520px" }} className="w-full bg-zinc-900">
+              <style>{`
+                .leaflet-container { filter: saturate(0.85) contrast(1.05); }
+                .leaflet-control-zoom a { background:#0a0a0a !important; color:#fbbf24 !important; border-color: rgba(251,191,36,0.3) !important; }
+                .leaflet-control-zoom a:hover { background:#181818 !important; }
+                .leaflet-control-attribution { background: rgba(0,0,0,0.6) !important; color: rgba(255,255,255,0.4) !important; }
+              `}</style>
               {!loading && (
                 <MapContainer
                   center={[store.lat, store.lng]}
@@ -332,17 +382,26 @@ export function DeliveryLocationPage() {
                     attribution="&copy; OpenStreetMap contributors"
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
-                  {/* Store */}
-                  <Marker position={[store.lat, store.lng]}>
+
+                  {/* Auto-fit all pins */}
+                  <FitBounds points={allPoints} />
+
+                  {/* Store marker — gold */}
+                  <Marker position={[store.lat, store.lng]} icon={goldIcon}>
                     <Popup>
                       <strong>🏪 SKYMART Store</strong>
                       <br />
                       Fulfillment Center
                     </Popup>
                   </Marker>
-                  {/* Friends */}
+
+                  {/* Friends — grey */}
                   {locations.map((loc) => (
-                    <Marker key={loc.user_id} position={[loc.lat, loc.lng]}>
+                    <Marker
+                      key={loc.user_id}
+                      position={[loc.lat, loc.lng]}
+                      icon={grayIcon}
+                    >
                       <Popup>
                         <strong>{loc.username}</strong>
                         <br />
