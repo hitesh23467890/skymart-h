@@ -52,6 +52,8 @@ import { DeliveryLocationPage } from "./pages/DeliveryLocationPage";
 import { PaymentOptionsPage } from "./pages/PaymentOptionsPage";
 import { SplitPaymentPage } from "./components/SplitPaymentPage";
 import { DeliveryAssignmentPage } from "./pages/DeliveryAssignmentPage";
+import { SplitConfigPage } from "./pages/SplitConfigPage";
+import { FullPaymentPage } from "./pages/FullPaymentPage";
 // ============================================================
 // API CONFIGURATION
 // ============================================================
@@ -1997,7 +1999,22 @@ export default function App() {
       </>
     );
   }
-
+  if (location.pathname === "/split-config") {
+    return (
+      <>
+        {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+        <SplitConfigPage />
+      </>
+    );
+  }
+  if (location.pathname === "/pay-full") {
+    return (
+      <>
+        {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+        <FullPaymentPage />
+      </>
+    );
+  }
   return (
     <>
       {/* Splash Screen */}
