@@ -50,10 +50,10 @@ import { SplashScreen } from "./components/SplashScreen";
 import { RazorpayPayment } from "./components/RazorpayPayment";
 import { DeliveryLocationPage } from "./pages/DeliveryLocationPage";
 import { PaymentOptionsPage } from "./pages/PaymentOptionsPage";
-import { SplitPaymentPage } from "./components/SplitPaymentPage";
 import { DeliveryAssignmentPage } from "./pages/DeliveryAssignmentPage";
 import { SplitConfigPage } from "./pages/SplitConfigPage";
 import { FullPaymentPage } from "./pages/FullPaymentPage";
+import { SplitPaymentPage } from "./pages/SplitPaymentPage";
 // ============================================================
 // API CONFIGURATION
 // ============================================================
@@ -2012,6 +2012,14 @@ export default function App() {
       <>
         {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
         <FullPaymentPage />
+      </>
+    );
+  }
+  if (location.pathname === "/split-payment") {
+    return (
+      <>
+        {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+        <SplitPaymentPage />
       </>
     );
   }
